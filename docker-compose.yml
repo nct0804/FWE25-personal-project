@@ -21,6 +21,7 @@ services:
 
   mongo:
     image: mongo:6
+    command: mongod --quiet --logpath=/dev/null
     container_name: travel-mongo
     ports:
       - '27017:27017'
