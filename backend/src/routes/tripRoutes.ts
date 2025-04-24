@@ -14,7 +14,7 @@ router.post('/:tripId/destinations/:destinationId', tripControllers.addDestinati
 router.delete('/:tripId/destinations/:destinationId', tripControllers.removeDestinationFromTrip);
 
 // Search routes
-router.get('/search/by-name-or-date', tripControllers.searchTrips);
+router.get('/search', tripControllers.searchTrips);
 router.get('/destination/:destinationId/trips', tripControllers.getTripsByDestination);
 
 

@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URL = 'mongodb://mongo:27017/';
+const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelBooking';
 
 // Routes
 app.use('/api/trips', tripRoutes);
@@ -24,9 +24,9 @@ app.get('/', (req, res) => {
 
 
 mongoose
-  .connect(MONGO_URL, { dbName: 'TravelBooking' })
+  .connect(MONGO_URL)
   .then(() => console.log('Connected to MongoDB'))
-  .catch((err: any) => console.log('Failed to connect to MongoDB', err));
+  .catch((err) => console.error('Failed to connect to MongoDB', err));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);});
