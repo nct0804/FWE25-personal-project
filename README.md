@@ -2,11 +2,14 @@
 
 
 
-## Getting started
+## Disclamer
+For some reasons i couldn't install and run MongoDB locally, so i need to run it through Docker!
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+```
+    docker-compose down --volumes
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+    docker-compose up --build
+```
 
 ## Add your files
 
