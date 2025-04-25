@@ -92,5 +92,14 @@ Show your appreciation to those who have contributed to the project.
 ## License
 For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## API TESTING
+Destinations must exist in the database first before they can be linked to trips.
+1. Create a Destination and save the its id
+2. Create a Trip that includes the destinations array with the Destination's _id.
+
+
+
+
+
+## LESSON LEARNED
+1. I've been running the application and encountered the same issue repeatedly, getting the same output each time. I tried to troubleshoot the problem and looked up solutions online, but nothing seemed to work. It turned out that the dist folder wasn't being updated, so it wasn't recognizing the new code I had written. Instead, it kept running the old, outdated code, which led to the same problem persisting. It wasn't until I removed and cleaned up the dist folder that the program finally ran smoothly again.
