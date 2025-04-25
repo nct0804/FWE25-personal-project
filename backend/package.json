@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --watch src --ext ts,js --exec ts-node src/index.ts",
+    "start": "nodemon -L --watch /app/src --ext ts,js --exec ts-node /app/src/index.ts",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "serve": "node dist/index.js"
@@ -14,7 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.1",               
     "@types/mongoose": "^5.11.96",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
