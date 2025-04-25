@@ -17,6 +17,7 @@ class TripController{
         try {
             const {id} = req.params;
             const trip = await Trip.findById(id).populate('destinations');
+            // const trip = await Trip.findOne({ where: { id: parseInt(id) }, relations: ['destinations'] });
             res.status(200).json(trip);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching trip', error });
@@ -37,15 +38,22 @@ class TripController{
             });
             
             const savedTrip = await trip.save();
-            res.status(201).json({message: "Trip succesfully created",savedTrip});
+            res.status(201).json({message: "Trip succesfully created", savedTrip});
         } catch (error) {
             res.status(500).json({ message: 'Error creating trip', error });
         }
         };
+        
     updateTrip = async (req: express.Request, res: express.Response) =>{
         try {
             const { name, description, image, participants, startDate, endDate, destinations } = req.body;
             const {id} = req.params;
+
+            
+            const updateData: any = { ...req.body };
+            if (startDate) updateData.startDate = new Date(startDate);
+            if (endDate) updateData.endDate = new Date(endDate);
+            
 
             const trip = await Trip.findById(id);
             if(trip)
@@ -67,7 +75,7 @@ class TripController{
         }
     };
 
-    // Delete a trip
+
     deleteTrip = async (req: express.Request, res: express.Response) => {
         try {
             const {id} = req.params;
@@ -93,7 +101,7 @@ class TripController{
         }
         };
 
-    // Remove destination from trip
+
     removeDestinationFromTrip = async (req: express.Request, res: express.Response) => {
         try {
             const { tripId, destinationId } = req.params;
@@ -110,7 +118,7 @@ class TripController{
         }
         };
 
-    // Search trips by name or date
+
     searchTrips = async (req: express.Request, res: express.Response) => {
         try {
             const { name, startDate, endDate } = req.query;
@@ -136,14 +144,13 @@ class TripController{
         }
         };
 
-    // Get all trips that contain a specific destination
+
     getTripsByDestination = async (req: express.Request, res: express.Response) => {
         try {
             const { destinationId } = req.params;
             
             const trips = await Trip.find({
-            destinations: destinationId
-            }).populate('destinations');
+            destinations: destinationId}).populate('destinations');
             
             res.status(200).json(trips);
         } catch (error) {

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import tripRoutes from './routes/tripRoutes';
+import destinationRoutes from './routes/destinationRoutes';
 
 dotenv.config();
 
@@ -15,10 +16,11 @@ const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelBooking'
 
 // Routes
 app.use('/api/trips', tripRoutes);
+app.use('/api/destinations', destinationRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Travel Booking API is running');
+  res.send('Welcome to the Travel Booking API hehe'); 
 });
 
 

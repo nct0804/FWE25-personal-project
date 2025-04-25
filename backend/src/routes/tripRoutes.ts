@@ -1,21 +1,17 @@
 import express from 'express';
-import tripControllers from "../controller/tripController"
+import tripController from "../controller/tripController"
 
 const router = express.Router();
 
-router.get('/', tripControllers.getAllTrips);
-router.get('/:id', tripControllers.getTrip);
-router.post('/', tripControllers.createTrip);
-router.put('/:id', tripControllers.updateTrip);
-router.delete('/:id', tripControllers.deleteTrip);
-
-// Destination management routes
-router.post('/:tripId/destinations/:destinationId', tripControllers.addDestinationToTrip);
-router.delete('/:tripId/destinations/:destinationId', tripControllers.removeDestinationFromTrip);
-
-// Search routes
-router.get('/search', tripControllers.searchTrips);
-router.get('/destination/:destinationId/trips', tripControllers.getTripsByDestination);
+router.get('/', tripController.getAllTrips);
+router.get('/:id', tripController.getTrip);
+router.post('/', tripController.createTrip);
+router.put('/:id', tripController.updateTrip);
+router.delete('/:id', tripController.deleteTrip);
+router.post('/:tripId/destinations/:destinationId', tripController.addDestinationToTrip);
+router.delete('/:tripId/destinations/:destinationId', tripController.removeDestinationFromTrip);
+router.get('/search', tripController.searchTrips);
+router.get('/destination/:destinationId/trips', tripController.getTripsByDestination);
 
 
 export default router;
