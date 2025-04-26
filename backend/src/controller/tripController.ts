@@ -17,6 +17,10 @@ class TripController{
         try {
             const {id} = req.params;
             const trip = await Trip.findById(id).populate('destinations');
+            if (!trip) {
+                return res.status(404).json({ message: 'Trip not found' });
+              }
+
             // const trip = await Trip.findOne({ where: { id: parseInt(id) }, relations: ['destinations'] });
             res.status(200).json(trip);
         } catch (error) {
@@ -27,6 +31,11 @@ class TripController{
     createTrip = async (req: express.Request, res: express.Response) => {
         try {
             const { name, description, image, participants, startDate, endDate, destinations } = req.body;
+
+            if (!name) {
+                return res.status(400).json({ message: 'Trip name is required' });
+              }
+
             const trip = new Trip({
             name,
             description,
@@ -49,7 +58,7 @@ class TripController{
             const { name, description, image, participants, startDate, endDate, destinations } = req.body;
             const {id} = req.params;
 
-            
+
             const updateData: any = { ...req.body };
             if (startDate) updateData.startDate = new Date(startDate);
             if (endDate) updateData.endDate = new Date(endDate);
@@ -67,7 +76,7 @@ class TripController{
                 const updatedTrip = await trip.save();
                 res.status(200).json({message: "Trip updated",updatedTrip});
             }
-            else res.sendStatus(400)
+            else res.status(404).json({ message: 'Trip not found' });
             
 
         } catch (error) {
@@ -80,6 +89,9 @@ class TripController{
         try {
             const {id} = req.params;
             const deletedTrip = await Trip.findByIdAndDelete({_id: id});
+            if (!deletedTrip) {
+                return res.status(404).json({ message: 'Trip not found' });
+              }
             res.status(200).json({ message: 'Trip deleted successfully' });
         } catch (error) {
             res.status(500).json({ message: 'Error deleting trip', error });
@@ -89,12 +101,23 @@ class TripController{
     addDestinationToTrip = async (req: express.Request, res: express.Response) => {
         try {
             const { tripId, destinationId } = req.params;
+
+            const destination = await Destination.findById(destinationId);
+            if (!destination) {
+              return res.status(404).json({ message: 'Destination not found' });
+            }
+            
             
             const trip = await Trip.findByIdAndUpdate(
             tripId,
             { $addToSet: { destinations: destinationId } },
             { new: true, runValidators: true }
             ).populate('destinations');
+
+            if (!trip) {
+                return res.status(404).json({ message: 'Trip not found' });
+              }
+
             res.status(200).json(trip);
         } catch (error) {
             res.status(500).json({ message: 'Error adding destination to trip', error });
@@ -111,6 +134,10 @@ class TripController{
             { $pull: { destinations: destinationId } },
             { new: true, runValidators: true }
             ).populate('destinations');
+
+            if (!trip) {
+                return res.status(404).json({ message: 'Trip not found' });
+              }
             
             res.status(200).json(trip);
         } catch (error) {
@@ -148,6 +175,11 @@ class TripController{
     getTripsByDestination = async (req: express.Request, res: express.Response) => {
         try {
             const { destinationId } = req.params;
+
+            const destination = await Destination.findById(destinationId);
+            if (!destination) {
+              return res.status(404).json({ message: 'Destination not found' });
+            }
             
             const trips = await Trip.find({
             destinations: destinationId}).populate('destinations');

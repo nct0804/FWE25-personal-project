@@ -7,7 +7,8 @@ const TripSchema = new Schema({
   participants: [String],
   startDate: Date,
   endDate: Date,
-  destinations: [{ type: Schema.Types.ObjectId, ref: 'Destination' }],
+  destinations: [{ type: Schema.Types.ObjectId, ref: 'Destination', required: true }],
+  budget: { type: Number, default: 0 }
 });
 
 export default model('Trip', TripSchema);

@@ -16,6 +16,11 @@ class destinationController{
     getDestinationById = async (req: express.Request, res: express.Response) => {
     try {
         const destination = await Destination.findById(req.params.id);
+
+        if (!destination) {
+            return res.status(404).json({ message: 'Destination not found' });
+          }
+
         res.status(200).json(destination);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching destination', error });
@@ -25,6 +30,10 @@ class destinationController{
     createDestination = async (req: express.Request, res: express.Response) => {
     try {
         const { name, description, activities, startDate, endDate, photos } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ message: 'Destination name is required' });
+          }
         const destination = new Destination({
         name,
         description,
@@ -54,6 +63,10 @@ class destinationController{
         updateData,
         { new: true, runValidators: true }
         );
+
+        if (!updatedDestination) {
+            return res.status(404).json({ message: 'Destination not found' });
+          }
         
         res.status(200).json(updatedDestination);
     } catch (error) {

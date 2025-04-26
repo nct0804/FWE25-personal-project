@@ -1,13 +1,28 @@
-// src/routes/destinationRoutes.ts
-import { Router } from 'express';
+import { Router } from 'express';  
+import express from 'express';
 import destinationController from "../controller/destinationController"
 
 const router = Router();
 
+
+
 router.get('/', destinationController.getAllDestinations);
-router.get('/:id', destinationController.getDestinationById);
-router.post('/', destinationController.createDestination);
-router.put('/:id', destinationController.updateDestination);
+router.get('/:id', 
+    async (req: express.Request, res: express.Response) => {
+      await destinationController.getDestinationById(req, res);
+    }
+  );
+
+router.post('/', 
+    async (req: express.Request, res: express.Response) => {
+      await destinationController.createDestination(req, res);
+    }
+  );
+router.put('/:id', 
+    async (req: express.Request, res: express.Response) => {
+      await destinationController.updateDestination(req, res);
+    }
+  );
 router.delete('/:id', destinationController.deleteDestination);
 
 export default router;
