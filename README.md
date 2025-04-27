@@ -89,8 +89,15 @@ You can also document commands to lint the code or run tests. These steps help t
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
 
-## License
-For open source projects, say how it is licensed.
+## Freestyling Task
+#  Task :1 Budget Tracker
+Giving the family, friends group opportunity to:
+    Set a total budget for a trip
+
+    Set individual budget (with categories)
+
+    Manage spending sources and remaining budget
+But its not mandantory if the group are ready to let the hair down hhehe
 
 ## API TESTING
 Destinations must exist in the database first before they can be linked to trips.
