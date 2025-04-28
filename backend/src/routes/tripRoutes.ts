@@ -4,7 +4,17 @@ import tripController from "../controller/tripController"
 
 const router = Router();
 
-router.get('/', tripController.getAllTrips);
+router.get('/', 
+  async (req: express.Request, res: express.Response) => {
+    await tripController.getAllTrips(req, res);
+  }
+);
+
+router.get('/search', async (req: express.Request, res: express.Response) => {
+  await tripController.searchTrips(req, res);
+});
+
+
 router.get('/:id', 
     async (req: express.Request, res: express.Response) => {
       await tripController.getTrip(req, res);
@@ -31,7 +41,7 @@ router.delete('/:tripId/destinations/:destinationId', async (req: express.Reques
     await tripController.removeDestinationFromTrip(req, res);
   }
 );
-router.get('/search', tripController.searchTrips);
+
 router.get('/destination/:destinationId/trips',  async (req: express.Request, res: express.Response) => {
     await tripController.getTripsByDestination(req, res);
   }

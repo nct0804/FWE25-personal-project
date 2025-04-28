@@ -1,13 +1,17 @@
 import express from 'express'
 import Trip from '../utils/trips';
 import Destination from '../utils/destinations';
+import { Types } from 'mongoose';
 
 class TripController{
 
     getAllTrips = async (req: express.Request, res: express.Response) => {
         try {
             const trips = await Trip.find().populate('destinations');
-            res.status(200).json(trips);
+            if (trips.length===0) {
+                return res.status(404).json({ message: 'No trips found' });
+              }
+            res.status(200).json({message: "succesfully fetched all trips ",trips});
         } catch (error) {
             res.status(500).json({ message: 'Error fetching trips', error });
         }
@@ -22,7 +26,7 @@ class TripController{
               }
 
             // const trip = await Trip.findOne({ where: { id: parseInt(id) }, relations: ['destinations'] });
-            res.status(200).json(trip);
+            res.status(200).json({message: "succesfully fetched trip ",trip});
         } catch (error) {
             res.status(500).json({ message: 'Error fetching trip', error });
         }
@@ -30,7 +34,7 @@ class TripController{
 
     createTrip = async (req: express.Request, res: express.Response) => {
         try {
-            const { name, description, image, participants, startDate, endDate, destinations } = req.body;
+            const { name, description, image, participants, startDate, endDate, destinations, budget } = req.body;
 
             if (!name) {
                 return res.status(400).json({ message: 'Trip name is required' });
@@ -44,6 +48,7 @@ class TripController{
             startDate: startDate ? new Date(startDate) : undefined,
             endDate: endDate ? new Date(endDate) : undefined,
             destinations: destinations || [],
+            budget
             });
             
             const savedTrip = await trip.save();
@@ -146,35 +151,44 @@ class TripController{
         };
 
 
-    searchTrips = async (req: express.Request, res: express.Response) => {
-        try {
-            const { name, startDate, endDate } = req.query;
-            
-            const query: any = {};
-            
-            if (name) {
-            query.name = { $regex: name, $options: 'i' };
+        searchTrips = async (req: express.Request, res: express.Response) => {
+            try {
+                const { name, startDate, endDate } = req.query;
+                
+                const query: any = {};
+        
+                if (name) {
+                    query.name = { $regex: new RegExp(name.toString(), 'i') };
+                }
+        
+                if (startDate) {
+                    query.startDate = { $gte: new Date(startDate.toString()) };
+                }
+        
+                if (endDate) {
+                    query.endDate = { $lte: new Date(endDate.toString()) };
+                }
+        
+                const trips = await Trip.find(query).populate('destinations');
+                
+                if (trips.length === 0) {
+                    return res.status(404).json({ message: 'No trips found matching your criteria' });
+                }
+        
+                res.status(200).json({ message: "Successfully searched trips", trips });
+            } catch (error) {
+                res.status(500).json({ message: 'Error searching trips', error });
             }
-            
-            if (startDate) {
-            query.startDate = { $gte: new Date(startDate as string) };
-            }
-            
-            if (endDate) {
-            query.endDate = { $lte: new Date(endDate as string) };
-            }
-            
-            const trips = await Trip.find(query).populate('destinations');
-            res.status(200).json(trips);
-        } catch (error) {
-            res.status(500).json({ message: 'Error searching trips', error });
-        }
         };
 
 
     getTripsByDestination = async (req: express.Request, res: express.Response) => {
         try {
             const { destinationId } = req.params;
+            
+            if (!Types.ObjectId.isValid(destinationId)) {
+                return res.status(400).json({ message: 'Invalid destination ID format' });
+            }
 
             const destination = await Destination.findById(destinationId);
             if (!destination) {
@@ -184,7 +198,7 @@ class TripController{
             const trips = await Trip.find({
             destinations: destinationId}).populate('destinations');
             
-            res.status(200).json(trips);
+            res.status(200).json({message: "Succesfully",trips});
         } catch (error) {
             res.status(500).json({ message: 'Error fetching trips by destination', error });
         }

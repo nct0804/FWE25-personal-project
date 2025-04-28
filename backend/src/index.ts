@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import tripRoutes from './routes/tripRoutes';
 import destinationRoutes from './routes/destinationRoutes';
+import budgetRoutes from './routes/budgetRoutes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelBooking'
 // Routes
 app.use('/api/trips', tripRoutes);
 app.use('/api/destinations', destinationRoutes);
+app.use('/api/trips', budgetRoutes);
 
 // Root route
 app.get('/', (req, res) => {

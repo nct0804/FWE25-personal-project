@@ -6,7 +6,11 @@ const router = Router();
 
 
 
-router.get('/', destinationController.getAllDestinations);
+router.get('/',  
+  async (req: express.Request, res: express.Response) => {
+    await destinationController.getAllDestinations(req, res);
+  }
+);
 router.get('/:id', 
     async (req: express.Request, res: express.Response) => {
       await destinationController.getDestinationById(req, res);

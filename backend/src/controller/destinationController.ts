@@ -7,7 +7,10 @@ class destinationController{
     getAllDestinations = async (req: express.Request, res: express.Response) => {
     try {
         const destinations = await Destination.find();
-        res.status(200).json(destinations);
+        if (destinations.length === 0) {
+            return res.status(404).json({ message: 'No destinations found' });
+          }
+        res.status(200).json({message: "Succesfully fetched",destinations});
     } catch (error) {
         res.status(500).json({ message: 'Error fetching destinations', error });
     }
@@ -21,7 +24,7 @@ class destinationController{
             return res.status(404).json({ message: 'Destination not found' });
           }
 
-        res.status(200).json(destination);
+        res.status(200).json({message: "Sucessfully found the destination",destination});
     } catch (error) {
         res.status(500).json({ message: 'Error fetching destination', error });
     }
@@ -68,7 +71,7 @@ class destinationController{
             return res.status(404).json({ message: 'Destination not found' });
           }
         
-        res.status(200).json(updatedDestination);
+        res.status(200).json({message: "succesfully updated", updatedDestination});
     } catch (error) {
         res.status(500).json({ message: 'Error updating destination', error });
     }
