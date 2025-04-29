@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import tripRoutes from './routes/tripRoutes';
 import destinationRoutes from './routes/destinationRoutes';
 import budgetRoutes from './routes/budgetRoutes';
+import currencyRoutes from './routes/currencyRoutes';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelBooking'
 app.use('/api/trips', tripRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/trips', budgetRoutes);
+app.use('/api/currency', currencyRoutes);
 
 // Root route
 app.get('/', (req, res) => {

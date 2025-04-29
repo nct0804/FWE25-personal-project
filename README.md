@@ -90,7 +90,7 @@ You can also document commands to lint the code or run tests. These steps help t
 Show your appreciation to those who have contributed to the project.
 
 ## Freestyling Task
-#  Task :1 Budget Tracker
+###  Task :1 Budget Tracker
 Giving the family, friends group opportunity to:
     Set a total budget for a trip
 
@@ -98,6 +98,11 @@ Giving the family, friends group opportunity to:
 
     Manage spending sources and remaining budget
 But its not mandantory if the group are ready to let the hair down hhehe
+
+###  Task :2 Currency Exchange
+Featuring currency exchange functionality powered by Frankfurter.app API, allowing travelers to convert between their home currency and supported destination currencies.
+
+Supported Currencies according to Frankfurter.app API : `https://api.frankfurter.dev/v1/currencies`
 
 ## API TESTING
 Destinations must exist in the database first before they can be linked to trips.

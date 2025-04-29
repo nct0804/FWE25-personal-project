@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "9c1a1fc9-2f56-45f3-9cc1-38643a4f66e0",
-		"name": "Travel-API testing",
+		"_postman_id": "faec164b-4509-4641-b621-bad3f5b56512",
+		"name": "backend testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "44407978"
 	},
@@ -26,8 +26,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [],
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -41,7 +44,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Hanoi\",\n    \"description\": \"Lovely City and People\",\n    \"activities\": [\"Ho Guon\", \"Quoc Tu Giam\"],\n    \"startDate\": \"2025-08-15\",\n    \"endDate\": \"2025-09-15\",\n    \"photos\": [\"hanoi1.jpg\", \"hanoi2.jpg\"]\n}"
+							"raw": "{\n    \"name\": \"Tokyo\",\n    \"description\": \"People's faveorite city\",\n    \"activities\": [\"Anime culture exploring\", \"Food tour\"],\n    \"startDate\": \"2025-08-15\",\n    \"endDate\": \"2025-09-15\",\n    \"photos\": [\"tokyo1.jpg\", \"tokyo2.jpg\"]\n}"
 						},
 						"url": {
 							"raw": "http://localhost:5000/api/destinations",
@@ -111,7 +114,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"Updated description for Vietnam\",\n    \"activities\": [\"Pho Eating\"]\n}"
+							"raw": "{\n    \"description\": \"Updated description for Japan\",\n    \"activities\": [\"Ramen Eating\"]\n}"
 						},
 						"url": {
 							"raw": "http://localhost:5000/api/destinations/{{destinationId}}",
@@ -151,8 +154,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [],
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -166,7 +172,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Vietnam\",\n    \"description\": \"Exploring the best of Country\",\n    \"startDate\": \"2025-07-15\",\n    \"endDate\": \"2025-09-15\",\n    \"participants\": [\"Chi Thien\", \"Song Phuong\", \"LinhLeo\"],\n    \"image\": \"vietnam.jpg\",\n    \"budget\": 2000\n}"
+							"raw": "{\n    \"name\": \"Japan\",\n    \"description\": \"Exploring the best Country\",\n    \"startDate\": \"2025-07-15\",\n    \"endDate\": \"2025-09-15\",\n    \"participants\": [\"Chi Thien\", \"Song Phuong\", \"LinhLeo\"],\n    \"image\": \"japan.jpg\",\n    \"budget\": 10000\n}"
 						},
 						"url": {
 							"raw": "http://localhost:5000/api/trips",
@@ -278,7 +284,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5000/api/trips/search?name=Vietnam",
+							"raw": "http://localhost:5000/api/trips/search?name=Japan",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -292,7 +298,7 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "Vietnam"
+									"value": "Japan"
 								}
 							]
 						}
@@ -376,6 +382,328 @@
 								"api",
 								"trips",
 								"{{tripId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Currency Exchange",
+			"item": [
+				{
+					"name": "Get Supported Currencies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/currency/currencies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"currency",
+								"currencies"
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains supported currencies\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.currencies).to.be.an('array');",
+									"    pm.expect(jsonData.currencies).to.include('EUR');",
+									"    pm.expect(jsonData.currencies).to.include('JPY');",
+									"    pm.expect(jsonData.currencies).to.include('USD');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Latest Exchange Rates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has rates\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.rates).to.be.an('object');",
+									"    pm.expect(jsonData.rates.JPY).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/currency/rates?base=EUR",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"currency",
+								"rates"
+							],
+							"query": [
+								{
+									"key": "base",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Convert Currency Amount",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains converted amount\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.convertedAmount).to.be.a('number');",
+									"    pm.expect(jsonData.rate).to.be.a('number');",
+									"    pm.expect(jsonData.from).to.eql('EUR');",
+									"    pm.expect(jsonData.to).to.eql('JPY');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/currency/convert?amount=10000&from=EUR&to=JPY",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"currency",
+								"convert"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "10000"
+								},
+								{
+									"key": "from",
+									"value": "EUR"
+								},
+								{
+									"key": "to",
+									"value": "JPY"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trip Budget in JPY",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains converted budget\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.originalBudget).to.be.a('number');",
+									"    pm.expect(jsonData.convertedBudget).to.be.a('number');",
+									"    pm.expect(jsonData.currency).to.eql('JPY');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/currency/trips/{{tripId}}/budget?currency=JPY",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"currency",
+								"trips",
+								"{{tripId}}",
+								"budget"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "JPY"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trip with JPY Conversion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains converted budget\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.trip.budget).to.be.a('number');",
+									"    pm.expect(jsonData.trip.convertedBudget).to.be.an('object');",
+									"    pm.expect(jsonData.trip.convertedBudget.amount).to.be.a('number');",
+									"    pm.expect(jsonData.trip.convertedBudget.currency).to.eql('JPY');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}?currency=JPY",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "JPY"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget Summary in JPY",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains converted values\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.convertedValues).to.be.an('object');",
+									"    pm.expect(jsonData.convertedValues.budget).to.be.a('number');",
+									"    pm.expect(jsonData.convertedValues.totalSpent).to.be.a('number');",
+									"    pm.expect(jsonData.convertedValues.remaining).to.be.a('number');",
+									"    pm.expect(jsonData.convertedValues.byCategory).to.be.an('object');",
+									"    pm.expect(jsonData.convertedValues.currency).to.eql('JPY');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets/summary?currency=JPY",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"budgets",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "currency",
+									"value": "JPY"
+								}
 							]
 						}
 					},

@@ -1,6 +1,7 @@
 import express from 'express'
 import Trip from '../utils/trips';
 import Destination from '../utils/destinations';
+import {CurrencyService} from '../utils/currency';
 import { Types } from 'mongoose';
 
 class TripController{
@@ -19,18 +20,48 @@ class TripController{
 
     getTrip = async (req: express.Request, res: express.Response) => {
         try {
-            const {id} = req.params;
+            const { id } = req.params;
+            const currency = req.query.currency as string | undefined;
             const trip = await Trip.findById(id).populate('destinations');
+
             if (!trip) {
                 return res.status(404).json({ message: 'Trip not found' });
-              }
+            }
 
-            // const trip = await Trip.findOne({ where: { id: parseInt(id) }, relations: ['destinations'] });
-            res.status(200).json({message: "succesfully fetched trip ",trip});
+            let convertedBudget: number | null = null;
+            let targetCurrency: string | null = null;
+
+            if (currency && currency !== 'EUR') {
+                try {
+                    convertedBudget = await CurrencyService.convertAmount(
+                        trip.budget || 0,
+                        'EUR',
+                        currency
+                    );
+                    targetCurrency = currency;
+                } catch (error) {
+                    console.error('Currency conversion failed:', error);
+                }
+            }
+
+            res.status(200).json({
+                message: "successfully fetched trip",
+                trip: {
+                    ...trip.toObject(),
+                    budget: trip.budget,
+                    currency: 'EUR',
+                    convertedBudget: convertedBudget !== null ? {
+                        amount: convertedBudget,
+                        currency: targetCurrency
+                    } : undefined,
+                    supportedCurrencies: CurrencyService.getSupportedCurrencies()
+                }
+            });
         } catch (error) {
             res.status(500).json({ message: 'Error fetching trip', error });
         }
-        };
+    };
+    
 
     createTrip = async (req: express.Request, res: express.Response) => {
         try {

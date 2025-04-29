@@ -1,6 +1,7 @@
 import express from 'express';
 import Budget from '../utils/budgets';
 import Trip from '../utils/trips';
+import { CurrencyService } from '../utils/currency';
 
 class BudgetController {
     createBudget = async (req: express.Request, res: express.Response) => {
@@ -64,32 +65,57 @@ class BudgetController {
     getBudgetSummary = async (req: express.Request, res: express.Response) => {
         try {
             const { tripId } = req.params;
+            const { currency } = req.query;
+    
             const budgets = await Budget.find({ tripId });
             const trip = await Trip.findById(tripId);
-
+    
             if (!trip) {
                 return res.status(404).json({ message: 'Trip not found' });
             }
-
+    
             const totalSpent = budgets.reduce((sum, budget) => sum + budget.amount, 0);
             const remaining = (trip.budget || 0) - totalSpent;
-
+    
             const byCategory = budgets.reduce((acc, budget) => {
                 acc[budget.category] = (acc[budget.category] || 0) + budget.amount;
                 return acc;
             }, {} as Record<string, number>);
-
+    
+            // Currency conversion if applicable
+            let convertedValues = null;
+            if (currency && currency !== 'EUR') {
+                try {
+                    const conversionRate = await CurrencyService.convertAmount(1, 'EUR', currency.toString());
+                    convertedValues = {
+                        budget: (trip.budget || 0) * conversionRate,
+                        totalSpent: totalSpent * conversionRate,
+                        remaining: remaining * conversionRate,
+                        byCategory: Object.fromEntries(
+                            Object.entries(byCategory).map(([k, v]) => [k, v * conversionRate])
+                        ),
+                        currency: currency.toString(),
+                        rate: conversionRate
+                    };
+                } catch (error) {
+                    console.error('Currency conversion failed:', error);
+                }
+            }
+    
             res.status(200).json({
                 budget: trip.budget || 0,
                 totalSpent,
                 remaining,
-                byCategory
+                byCategory,
+                currency: 'EUR',
+                convertedValues
             });
 
         } catch (error) {
             res.status(500).json({ message: 'Error generating budget summary', error });
         }
     };
+    
 
     deleteBudget = async (req: express.Request, res: express.Response) => {
         try {
