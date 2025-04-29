@@ -89,20 +89,29 @@ You can also document commands to lint the code or run tests. These steps help t
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
 
-## Freestyling Task
-###  Task :1 Budget Tracker
+# Freestyling Task
+###  Task #1: Budget Tracker
+>Überrasche uns mit einem Feature, welches nicht in der
+Aufgabenbeschreibung gefordert ist. Wichtig: Es muss zu dem aktuellen
+Projekt passen. Dieses Feature darf keine Daten von einer externen API
+konsumieren sondern muss die Funktionalität der bestehende App
+erweitern.
+
 Giving the family, friends group opportunity to:
-    Set a total budget for a trip
 
-    Set individual budget (with categories)
+    Set a total budget for a whole trip
 
-    Manage spending sources and remaining budget
+    Set individual expenses (with categories)
+
+    Manage spending sources, expenses and remaining budget
 But its not mandantory if the group are ready to let the hair down hhehe
 
-###  Task :2 Currency Exchange
-Featuring currency exchange functionality powered by Frankfurter.app API, allowing travelers to convert between their home currency and supported destination currencies.
+###  Task #2: Currency Exchange
+> Überrasche uns mit einem weiteren Feature, welches nicht in der Aufgabenbeschreibung gefordert ist. Wichtig: Es muss zu dem aktuellen Projekt passen. Dieses Feature muss Daten von einer externen API konsumieren.
 
-Supported Currencies according to Frankfurter.app API : `https://api.frankfurter.dev/v1/currencies`
+Featuring currency exchange functionality powered by [Frankfurter.app API](https://frankfurter.dev/), allowing travelers to convert between their home currency and supported destination currencies.
+
+[Supported Currencies according to Frankfurter.app API](https://api.frankfurter.dev/v1/currencies)
 
 ## API TESTING
 Destinations must exist in the database first before they can be linked to trips.
