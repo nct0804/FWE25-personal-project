@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "9c1a1fc9-2f56-45f3-9cc1-38643a4f66e0",
+		"name": "Travel-API testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44407978"
+	},
+	"item": [
+		{
+			"name": "1. Destinations",
+			"item": [
+				{
+					"name": "Create Destination",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set(\"destinationId\", jsonData._id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hanoi\",\n    \"description\": \"Lovely City and People\",\n    \"activities\": [\"Ho Guon\", \"Quoc Tu Giam\"],\n    \"startDate\": \"2025-08-15\",\n    \"endDate\": \"2025-09-15\",\n    \"photos\": [\"hanoi1.jpg\", \"hanoi2.jpg\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/destinations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"destinations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Destinations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/destinations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"destinations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Destination by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/destinations/{{destinationId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"destinations",
+								"{{destinationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Destination",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated description for Vietnam\",\n    \"activities\": [\"Pho Eating\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/destinations/{{destinationId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"destinations",
+								"{{destinationId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Trips",
+			"item": [
+				{
+					"name": "Create Trip (with Budget)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set(\"tripId\", jsonData.savedTrip._id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Vietnam\",\n    \"description\": \"Exploring the best of Country\",\n    \"startDate\": \"2025-07-15\",\n    \"endDate\": \"2025-09-15\",\n    \"participants\": [\"Chi Thien\", \"Song Phuong\", \"LinhLeo\"],\n    \"image\": \"vietnam.jpg\",\n    \"budget\": 2000\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/trips",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Trips",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets/summary",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"budgets",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Destination to Trip",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/destinations/{{destinationId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"destinations",
+								"{{destinationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trips by Destination",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/destination/{{destinationId}}/trips",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"destination",
+								"{{destinationId}}",
+								"trips"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Trips by Name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/search?name=Vietnam",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"search"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Vietnam"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trip by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Trips by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/search?startDate=2025-07-15&endDate=2025-09-15",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"search"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2025-07-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2025-09-15"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Trip",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated trip description\",\n    \"participants\": [\"John\", \"Sarah\", \"Mike\", \"Lisa\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Expense Maintaince (Trip)",
+			"item": [
+				{
+					"name": "Add Expense to Trip",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData && jsonData.budget && jsonData.budget._id) {",
+									"        pm.collectionVariables.set(\"budgetId\", jsonData.budget._id);",
+									"        console.log(\"Budget ID set successfully:\", jsonData.budget._id);",
+									"    } else {",
+									"        console.log(\"Response does not contain the expected 'budget' object:\", jsonData);",
+									"        pm.environment.set(\"error\", \"Response does not contain the expected 'budget' object\");",
+									"    }",
+									"} catch (error) {",
+									"    console.log(\"Error parsing response:\", error);",
+									"    pm.environment.set(\"error\", \"Error parsing response\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category\": \"Transport\",\n    \"amount\": 350,\n    \"description\": \"Flight tickets\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"budgets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Expenses for Trip",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"budgets"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "Delete Expense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData && jsonData.deletedBudget && jsonData.deletedBudget._id) {",
+									"        pm.collectionVariables.set(\"budgetId\", jsonData.deletedBudget._id);",
+									"    } else {",
+									"        console.log(\"Response does not contain the expected 'deletedBudget' object:\", jsonData);",
+									"        pm.environment.set(\"error\", \"Response does not contain the expected 'deletedBudget' object\");",
+									"    }",
+									"} catch (error) {",
+									"    console.log(\"Error parsing response:\", error);",
+									"    pm.environment.set(\"error\", \"Error parsing response\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets/{{budgetId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"budgets",
+								"{{budgetId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Destination from Trip",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}/destinations/{{destinationId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}",
+								"destinations",
+								"{{destinationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Destination",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/destinations/{{destinationId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"destinations",
+								"{{destinationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Trip",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/trips/{{tripId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"trips",
+								"{{tripId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "tripId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "destinationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "budgetId",
+			"value": ""
+		}
+	]
+}
