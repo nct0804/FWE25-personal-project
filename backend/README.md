@@ -1,4 +1,4 @@
-# FWESS251121462
+# FWESS251121462 - Backend
 
 ## Technologies Used
 
@@ -85,7 +85,54 @@ For people who want to make changes to your project, it's helpful to have some d
 You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
 
 ## API Reference
-The API will be available at http://localhost:3000
+The API will be available at `http://localhost:5000`
+
+#### Trips Routes
+- **`Get {/api/trips}`**: get all trips
+    - `/api/trips/:id` : Get a specific trip
+    - `/api/trips/search`: Search trips by name or date
+        - `/search?name=Japan`
+        - `/search?startDate=2025-07-15&endDate=2025-09-15`
+    - `/api/destinations/:destinationId/trips` : Get trips by destination
+
+- **`POST {/api/trips}`**: Create a new trip
+- **`PUT {/api/trips/:id}`**: Update a trip
+- **`DELETE {/api/trips/:id}`**: Delete a trip
+- **`POST {/api/trips/:tripId/destinations/:destinationId}`**: Add destination to trip
+- **`DELETE {/api/trips/:tripId/destinations/:destinationId}`**: Remove destination from trip
+
+#### Destinations Routes
+- **`Get {/api/destinations}`**: get all destinations
+    - `/api/destinations/:id` : Get a specific destination 
+
+- **`POST {/api/destinations}`**: Create a new destination
+- **`PUT {/api/destinations/:id}`**: Update a desination
+- **`DELETE {/api/destinations/:id}`**: Delete a destination
+
+#### Budgets Routes (Expenses)
+- **`Get {/api/trips/:tripId/budget-summary}`**: Get expenses summary 
+- **`Get {/api/trips/:tripId/budgets}`**: Get all expenses for trip
+- **`Post {/api/trips/:tripId/budgets}`**: create a expense
+- **`DELETE {/api/budgets/:budgetId}`**: Delete a expense
+
+#### Currency Routes 
+- **`Get {/api/currency/supported}`**: Get supported currencies
+- **`Get {/api/currency/rates}`**: Get exchange rates (base currency optional)
+- **`Get {/api/currency/convert}`**: Convert between currencies
+- **`Get {/api/trips/:tripId/budget-in-currency}`**: Get trip budget in different currency
+
+## HTTP status codes (used for Routes)
+
+- `400 Bad Request`: Invalid input data or missing required fields
+
+- `404 Not Found`: Resource not found
+
+- `500 Internal Server Error`: Unexpected server error (with details in development)
+
+- `201 Created`: Resource successfully created
+
+- `200 OK`: Successful operation
+
 
 ## Features
 
