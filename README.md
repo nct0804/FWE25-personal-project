@@ -1,6 +1,6 @@
 # FWESS251121462 - Project Overview
 
-Our travel booking web app simplifies trip planning for creating and organizing itineraries. Easily manage destinations, track activities, and manage your budget(Freestyle #1) with integrated currency exchange function(Freestyle #2).
+Our travel booking web app simplifies trip planning for creating and organizing itineraries. Easily manage destinations, track activities, and manage your budget with integrated currency exchange function.
 
 # Set up the project with Docker!! 
 For some reasons i couldn't install and run MongoDB locally, so i had been working on and running everything through Docker! (Life Saver!).
