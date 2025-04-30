@@ -194,5 +194,6 @@ Just one important reminder: Run the requests in sequence:
 
 ## Archine - Long set up from the beginning
 ```
-
+    \. "$HOME/.nvm/nvm.sh"
+    npx tsc
 ```
