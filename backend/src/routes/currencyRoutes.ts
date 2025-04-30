@@ -3,7 +3,11 @@ import currencyController from '../controller/currencyController';
 
 const router = express.Router();
 
-router.get('/rates', currencyController.getExchangeRates);
+router.get('/rates', 
+    async (req: express.Request, res: express.Response) => {
+      await currencyController.getExchangeRates(req, res);
+    }
+  );
 router.get('/convert', 
   async (req: express.Request, res: express.Response) => {
     await currencyController.convertCurrency(req, res);

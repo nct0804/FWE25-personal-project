@@ -17,6 +17,13 @@ class CurrencyController {
     getExchangeRates = async (req: express.Request, res: express.Response) => {
         try {
             const { base = 'EUR' } = req.query;
+            
+            if (!CurrencyService.getSupportedCurrencies().includes(base.toString())) {
+                return res.status(400).json({ 
+                    message: 'Unsupported base currency',
+                    supportedCurrencies: CurrencyService.getSupportedCurrencies()
+                });
+            }
             const rates = await CurrencyService.getLatestRates(base.toString());
             res.status(200).json(rates);
         } catch (error) {
@@ -29,6 +36,10 @@ class CurrencyController {
             const { amount, from = 'EUR', to } = req.query;
             if (!amount || !to) {
                 return res.status(400).json({ message: 'Amount and to parameters are required' });
+            }
+            const amountValue = parseFloat(amount.toString());
+            if (isNaN(amountValue) || amountValue <= 0) {
+                return res.status(400).json({ message: 'Amount must be a positive number' });
             }
 
             const convertedAmount = await CurrencyService.convertAmount(
@@ -57,7 +68,6 @@ class CurrencyController {
             const { tripId } = req.params;
             const { currency = 'JPY' } = req.query;
             
-            // Assuming you have access to Trip model
             const trip = await Trip.findById(tripId);
             if (!trip) {
                 return res.status(404).json({ message: 'Trip not found' });
