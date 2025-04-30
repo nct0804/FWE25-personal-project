@@ -24,9 +24,10 @@ Navigate to the root project directory `fw--ss--25--1121462`, and run these comm
 ```
 
 Once you receive in the terminal, you're good to go! (it might take some time!)
-[x] Connected to MongoDB
-[x] Server running on http://localhost:${PORT}
-
+```
+Connected to MongoDB
+Server running on http://localhost:5000
+```
 ## Backend 
 The backend is built with Node.js, Express, MongoDB and TypeScript, offering a RESTful API that handles data related to trips and destinations using standard CRUD operations.
 
