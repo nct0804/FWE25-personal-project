@@ -2,6 +2,30 @@
 
 Our travel booking web app simplifies trip planning for creating and organizing itineraries. Easily manage destinations, track activities, and manage your budget with integrated currency exchange function.
 
+## Project Structure
+
+```
+fwe-ss-25-1121462
+├── backend
+│   ├── src
+│   │   ├── controller
+│   │   │   ├── budgetController.ts
+│   │   │   ├── currencyController.ts
+│   │   │   ├── destinationController.ts
+│   │   │   └── tripController.ts
+│   │   ├── index.ts
+│   │   ├── routes
+│   │   │   ├── budgetRoutes.ts
+│   │   │   ├── currencyRoutes.ts
+│   │   │   ├── destinationRoutes.ts
+│   │   │   └── tripRoutes.ts
+│   │   └── utils
+│   │       ├── budgets.ts
+│   │       ├── currency.ts
+│   │       ├── destinations.ts
+│   │       └── trips.ts
+```
+
 # Set up the project with Docker!! 
 For some reasons i couldn't install and run MongoDB locally, so i had been working on and running everything through Docker! (Life Saver!).
 So lets get started.
