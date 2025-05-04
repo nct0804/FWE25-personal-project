@@ -801,7 +801,7 @@
 			]
 		},
 		{
-			"name": "Cleanup",
+			"name": "5. Cleanup",
 			"item": [
 				{
 					"name": "Delete Expense",

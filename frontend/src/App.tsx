@@ -1,26 +1,77 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Link, useParams } from 'react-router-dom';
+import { Box, CssBaseline, AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
 
-function App() {
+import TripList from './components/TripList';
+import TripDetail from './components/TripDetail';
+import TripForm from './components/TripForm';
+import DestinationList from './components/DestinationList';
+import DestinationDetail from './components/destination_Detail';
+import DestinationForm from './components/destination_Form';
+
+import BudgetSummary from './components/BudgetSummary';
+import CurrencyConverter from './components/CurrencyConvention';
+
+const BudgetSummaryWrapper = () => {
+  const { id } = useParams<{ id: string }>();
+  
+  if (!id) {
+    return <div>No trip ID provided</div>;
+  }
+
+  return <BudgetSummary tripId={id} />;
+};
+
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <CssBaseline />
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Travel Planner
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button color="inherit" component={Link} to="/trips">
+              Trips
+            </Button>
+            <Button color="inherit" component={Link} to="/destinations">
+              Destinations
+            </Button>
+            <Button color="inherit" component={Link} to="/currency-converter">
+              Currency Converter
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      
+      <Container maxWidth="lg" sx={{ marginTop: 4, marginBottom: 4 }}>
+        <Routes>
+          {/* Trip Routes */}
+          <Route path="/trips" element={<TripList />} />
+          <Route path="/trips/new" element={<TripForm />} />
+          <Route path="/trips/:id" element={<TripDetail />} />
+          <Route path="/trips/:id/edit" element={<TripForm isEdit />} />
+          
+          {/* Trip Budget Routes */}
+          <Route path="/trips/:id/budget" element={<BudgetSummaryWrapper />} />
+          
+          {/* Destination Routes */}
+          <Route path="/destinations" element={<DestinationList />} />
+          <Route path="/destinations/new" element={<DestinationForm />} />
+          <Route path="/destinations/:id" element={<DestinationDetail />} />
+          <Route path="/destinations/:id/edit" element={<DestinationForm isEdit />} />
+          
+          {/* Currency Routes */}
+          <Route path="/currency-converter" element={<CurrencyConverter />} />
+          
+          {/* Default Route */}
+          <Route path="/" element={<TripList />} />
+        </Routes>
+      </Container>
+    </Router>
   );
-}
+};
 
 export default App;
