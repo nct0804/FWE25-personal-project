@@ -1,7 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getBudgetSummary } from '../api/budget';
-import { Typography, Paper, Box, Grid, CircularProgress, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  Typography,
+  Paper,
+  Box,
+  Grid,
+  CircularProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
+
+interface BudgetSummaryProps {
+  tripId: string;
+}
 
 interface BudgetSummaryData {
   budget: number;
@@ -18,38 +32,29 @@ interface BudgetSummaryData {
     rate: number;
   } | null;
 }
-interface BudgetSummaryProps {
-    tripId: string;
-  }
-  
 
 const BudgetSummary: React.FC<BudgetSummaryProps> = ({ tripId }) => {
-const [summary, setSummary] = useState<BudgetSummaryData | null>(null);
-const [loading, setLoading] = useState(true);
-const [currency, setCurrency] = useState('EUR');
-  
+  const [currency, setCurrency] = React.useState('EUR');
 
-    useEffect(() => {
-        const fetchSummary = async () => {
-        try {
-            const data = await getBudgetSummary(tripId, currency);
-            setSummary(data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching budget summary:', error);
-            setLoading(false);
-        }
-    };
-        
-    fetchSummary();
-  }, [tripId, currency]);
+  const {
+    data: summary,
+    isLoading,
+    isError,
+  } = useQuery<BudgetSummaryData>({
+    queryKey: ['budgetSummary', tripId, currency],
+    queryFn: () => getBudgetSummary(tripId, currency !== 'EUR' ? currency : undefined),
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
       </Box>
     );
+  }
+
+  if (isError) {
+    return <Typography color="error">Error loading budget summary</Typography>;
   }
 
   if (!summary) {
@@ -126,7 +131,7 @@ const [currency, setCurrency] = useState('EUR');
                 <Paper elevation={1} sx={{ padding: 2 }}>
                   <Typography variant="subtitle1">{category}</Typography>
                   <Typography variant="body1">
-                    {displayData.currency} {amount.toFixed(2)}
+                    {displayData.currency} {(amount as number).toFixed(2)}
                   </Typography>
                 </Paper>
               </Grid>

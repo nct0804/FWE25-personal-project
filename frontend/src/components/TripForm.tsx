@@ -1,9 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createTrip, updateTrip, getTrip } from '../api/trips';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getTrip, createTrip, updateTrip } from '../api/trips';
 import { getAllDestinations } from '../api/destinations';
-import { Trip, Destination } from '../types';
-import { TextField, Button, Typography, Paper, Box, Grid, MenuItem, Select, FormControl, InputLabel, Chip } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Box,
+  Grid,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Chip,
+  CircularProgress,
+  Alert,
+} from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -13,85 +27,117 @@ interface TripFormProps {
   isEdit?: boolean;
 }
 
+interface TripFormData {
+  name: string;
+  description?: string;
+  image?: string;
+  participants: string[];
+  startDate?: string | Date | undefined;
+  endDate?: string | Date | undefined;
+  destinations: string[];
+  budget?: number;
+}
+
 const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [availableDestinations, setAvailableDestinations] = useState<Destination[]>([]);
-  const [selectedDestinations, setSelectedDestinations] = useState<string[]>([]);
-  const [participants, setParticipants] = useState<string[]>(['']);
-  
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<Trip>({
-    defaultValues: {
-      name: '',
-      description: '',
-      image: '',
-      participants: [],
-      startDate: undefined,
-      endDate: undefined,
-      destinations: [],
-      budget: 0,
+  const queryClient = useQueryClient();
+  const [participants, setParticipants] = React.useState<string[]>(['']);
+  const [selectedDestinations, setSelectedDestinations] = React.useState<string[]>([]);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<TripFormData>();
+
+  const {
+    data: trip,
+    isLoading: isTripLoading,
+    isError: isTripError,
+  } = useQuery({
+    queryKey: ['trip', id],
+    queryFn: () => getTrip(id!),
+    enabled: isEdit && !!id,
+  });
+
+  const {
+    data: destinations,
+    isLoading: isDestinationsLoading,
+    isError: isDestinationsError,
+  } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: getAllDestinations,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (tripData: TripFormData) => createTrip(tripData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      navigate('/trips');
     },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const destinationsData = await getAllDestinations();
-        setAvailableDestinations(destinationsData.destinations);
-        
-        if (isEdit && id) {
-          const tripData = await getTrip(id);
-          const trip = tripData.trip;
-          
-          setValue('name', trip.name);
-          setValue('description', trip.description || '');
-          setValue('image', trip.image || '');
-          setValue('startDate', trip.startDate ? new Date(trip.startDate) : undefined);
-          setValue('endDate', trip.endDate ? new Date(trip.endDate) : undefined);
-          setValue('budget', trip.budget || 0);
-          
-          if (trip.participants) {
-            setParticipants([...trip.participants, '']);
-          }
-          
-          if (trip.destinations) {
-            setSelectedDestinations(trip.destinations.map((d: { _id: any; }) => d._id));
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    
-    fetchData();
-  }, [id, isEdit, setValue]);
+  const updateMutation = useMutation({
+    mutationFn: (tripData: TripFormData) => updateTrip(id!, tripData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trip', id] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      navigate(`/trips/${id}`);
+    },
+  });
 
-  const onSubmit = async (data: Trip) => {
-    try {
-      const tripData = {
-        ...data,
-        participants: participants.filter(p => p.trim() !== ''),
-        destinations: selectedDestinations,
-      };
+  React.useEffect(() => {
+    if (isEdit && trip) {
+      setValue('name', trip.name);
+      setValue('description', trip.description || '');
+      setValue('image', trip.image || '');
+      setValue('startDate', trip.startDate ? new Date(trip.startDate) : undefined);
+      setValue('endDate', trip.endDate ? new Date(trip.endDate) : undefined);
+      setValue('budget', trip.budget || 0);
       
-      if (isEdit && id) {
-        await updateTrip(id, tripData);
-      } else {
-        await createTrip(tripData);
+      if (trip.participants) {
+        setParticipants([...trip.participants, '']);
       }
       
-      navigate('/trips');
-    } catch (error) {
-      console.error('Error saving trip:', error);
+      if (trip.destinations) {
+        setSelectedDestinations(trip.destinations.map((d: any) => d._id));
+      }
     }
+  }, [isEdit, trip, setValue]);
+
+  const onSubmit = (data: TripFormData) => {
+    const formattedData = {
+      ...data,
+      startDate: data.startDate ? normalizeDate(data.startDate) : undefined,
+      endDate: data.endDate ? normalizeDate(data.endDate) : undefined,
+      participants: participants.filter((p) => p.trim() !== ''),
+      destinations: selectedDestinations,
+    };
+  
+    console.log('Submitting trip data:', formattedData); // For debugging
+  
+    if (isEdit && id) {
+      updateMutation.mutate(formattedData);
+    } else {
+      createMutation.mutate(formattedData);
+    }
+  };
+  
+  // Add this helper function in your component
+  const normalizeDate = (date: string | Date): string => {
+    const d = new Date(date);
+    // Set time to 00:00:00 to avoid timezone issues
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
   };
 
   const handleParticipantChange = (index: number, value: string) => {
     const newParticipants = [...participants];
     newParticipants[index] = value;
     setParticipants(newParticipants);
-    
-    // Add a new empty field if this is the last one and it's being filled
+
     if (index === participants.length - 1 && value.trim() !== '') {
       setParticipants([...newParticipants, '']);
     }
@@ -111,22 +157,46 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
   };
 
   const handleRemoveDestination = (destinationId: string) => {
-    setSelectedDestinations(selectedDestinations.filter(id => id !== destinationId));
+    setSelectedDestinations(selectedDestinations.filter((id) => id !== destinationId));
   };
+
+  if (isTripLoading || isDestinationsLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isTripError || isDestinationsError) {
+    return (
+      <Box sx={{ padding: 3 }}>
+        <Alert severity="error">
+          Error loading data. Please try again or contact support.
+        </Alert>
+        <Button 
+          variant="contained" 
+          onClick={() => window.location.reload()}
+          sx={{ mt: 2 }}
+        >
+          Retry
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Paper elevation={3} sx={{ padding: 3, margin: 2 }}>
       <Typography variant="h4" gutterBottom>
         {isEdit ? 'Edit Trip' : 'Create New Trip'}
       </Typography>
-      
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Controller
               name="name"
               control={control}
-              rules={{ required: 'Trip name is required' }}
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -138,7 +208,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Controller
               name="description"
@@ -154,7 +224,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
@@ -165,13 +235,20 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
                     label="Start Date"
                     value={field.value}
                     onChange={field.onChange}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        error={!!errors.startDate}
+                        helperText={errors.startDate?.message}
+                      />
+                    )}
                   />
                 )}
               />
             </LocalizationProvider>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
@@ -182,13 +259,14 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
                     label="End Date"
                     value={field.value}
                     onChange={field.onChange}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
+                    renderInput={(params) => <TextField {...params} fullWidth error={!!errors.endDate}
+                    helperText={errors.endDate?.message} />}
                   />
                 )}
               />
             </LocalizationProvider>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Participants
@@ -213,7 +291,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
               </Box>
             ))}
           </Grid>
-          
+
           <Grid item xs={12}>
             <Controller
               name="budget"
@@ -229,7 +307,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Destinations
@@ -244,19 +322,19 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
                 <MenuItem value="">
                   <em>Select a destination</em>
                 </MenuItem>
-                {availableDestinations
-                  .filter(dest => !selectedDestinations.includes(dest._id))
-                  .map((dest) => (
+                {destinations
+                  ?.filter((dest: any) => !selectedDestinations.includes(dest._id))
+                  .map((dest: any) => (
                     <MenuItem key={dest._id} value={dest._id}>
                       {dest.name}
                     </MenuItem>
                   ))}
               </Select>
             </FormControl>
-            
+
             <Box sx={{ marginTop: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {selectedDestinations.map(destId => {
-                const dest = availableDestinations.find(d => d._id === destId);
+              {selectedDestinations.map((destId) => {
+                const dest = destinations?.find((d: any) => d._id === destId);
                 return (
                   <Chip
                     key={destId}
@@ -267,14 +345,29 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
               })}
             </Box>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button variant="outlined" onClick={() => navigate('/trips')}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate(isEdit && id ? `/trips/${id}` : '/trips')}
+                disabled={createMutation.status === 'pending' || updateMutation.status === 'pending'}
+              >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
-                {isEdit ? 'Update Trip' : 'Create Trip'}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={createMutation.status ==="pending" || updateMutation.status === "pending"}
+              >
+                {createMutation.status === "pending" || updateMutation.status ==="pending" ? (
+                  <CircularProgress size={24} />
+                ) : isEdit ? (
+                  'Update Trip'
+                ) : (
+                  'Create Trip'
+                )}
               </Button>
             </Box>
           </Grid>

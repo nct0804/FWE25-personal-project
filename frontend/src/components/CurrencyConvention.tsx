@@ -1,44 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { convertCurrency, getSupportedCurrencies } from '../api/currency';
-import { TextField, Button, Typography, Paper, Box, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Box,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  CircularProgress,
+} from '@mui/material';
 
-const Supported_Currencies = ['AUD', 'BGN', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'DKK', 'EUR', 'GBP', 'HKD', 'HUF', 'IDR', 'ILS', 'INR', 'ISK', 'JPY', 'KRW', 'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'RON', 'SEK', 'SGD', 'THB', 'TRY', 'ZAR'];
 const CurrencyConverter: React.FC = () => {
   const [amount, setAmount] = useState<number>(1);
   const [fromCurrency, setFromCurrency] = useState<string>('EUR');
-  const [toCurrency, setToCurrency] = useState<string>('USD');
+  const [toCurrency, setToCurrency] = useState<string>('JPY');
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
   const [rate, setRate] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [currencies, setCurrencies] = useState<string[]>(Supported_Currencies);
 
-  useEffect(() => {
-    const fetchCurrencies = async () => {
-      try {
-        const data = await getSupportedCurrencies();
-        setCurrencies(data.currencies);
-      } catch (error) {
-        console.error('Error fetching supported currencies:', error);
-      }
-    };
-    
-    fetchCurrencies();
-  }, []);
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading,
+    isError: isCurrenciesError,
+  } = useQuery({ queryKey: ['supportedCurrencies'], queryFn: getSupportedCurrencies });
 
-  const handleConvert = async () => {
+  const convertMutation = useMutation<
+    { convertedAmount: number; rate: number }, // result
+    unknown,                                  // error type
+    { amount: number; fromCurrency: string; toCurrency: string } // variables
+  >({
+    mutationFn: ({ amount, fromCurrency, toCurrency }) => 
+      convertCurrency(amount, fromCurrency, toCurrency),
+
+    onSuccess: (data) => {
+      setConvertedAmount(data.convertedAmount);
+      setRate(data.rate);
+    },
+  });
+
+
+  
+  const handleConvert = () => {
     if (amount <= 0) return;
-    
-    setLoading(true);
-    try {
-      const result = await convertCurrency(amount, fromCurrency, toCurrency);
-      setConvertedAmount(result.convertedAmount);
-      setRate(result.rate);
-    } catch (error) {
-      console.error('Error converting currency:', error);
-    } finally {
-      setLoading(false);
-    }
+    convertMutation.mutate({ amount, fromCurrency, toCurrency });
   };
+  
+  if (isCurrenciesLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isCurrenciesError) {
+    return <Typography color="error">Error loading currency data</Typography>;
+  }
 
   return (
     <Paper elevation={3} sx={{ padding: 3, margin: 2 }}>
@@ -66,7 +87,7 @@ const CurrencyConverter: React.FC = () => {
               onChange={(e) => setFromCurrency(e.target.value as string)}
               label="From"
             >
-              {currencies.map((currency) => (
+              {currencies?.map((currency: string) => (
                 <MenuItem key={currency} value={currency}>
                   {currency}
                 </MenuItem>
@@ -83,7 +104,7 @@ const CurrencyConverter: React.FC = () => {
               onChange={(e) => setToCurrency(e.target.value as string)}
               label="To"
             >
-              {currencies.map((currency) => (
+              {currencies?.map((currency: string) => (
                 <MenuItem key={currency} value={currency}>
                   {currency}
                 </MenuItem>
@@ -96,11 +117,11 @@ const CurrencyConverter: React.FC = () => {
           <Button
             variant="contained"
             onClick={handleConvert}
-            disabled={loading}
+            disabled={convertMutation.status === 'pending'}
             fullWidth
             sx={{ height: '56px' }}
           >
-            {loading ? 'Converting...' : 'Convert'}
+            {convertMutation.status === "pending" ? 'Converting...' : 'Convert'}
           </Button>
         </Grid>
       </Grid>

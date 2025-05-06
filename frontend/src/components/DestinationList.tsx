@@ -11,7 +11,7 @@ const DestinationList: React.FC = () => {
     const fetchDestinations = async () => {
       try {
         const data = await getAllDestinations();
-        setDestinations(data.destinations);
+        setDestinations(data);
       } catch (error) {
         console.error('Error fetching destinations:', error);
       }

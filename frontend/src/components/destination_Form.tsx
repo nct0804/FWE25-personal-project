@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createDestination, updateDestination, getDestinationById } from '../api/destinations';
-import { Destination } from '../types';
-import { TextField, Button, Typography, Paper, Box, Grid } from '@mui/material';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getDestinationById, createDestination, updateDestination } from '../api/destinations';
+import {
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Box,
+  Grid,
+  CircularProgress,
+} from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -12,62 +20,88 @@ interface DestinationFormProps {
   isEdit?: boolean;
 }
 
+interface DestinationFormData {
+  name: string;
+  description?: string;
+  activities: string[];
+  startDate?: Date;
+  endDate?: Date;
+  photos?: string[];
+}
+
 const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activities, setActivities] = useState<string[]>(['']);
-  
-  const { control, handleSubmit, setValue, formState: { errors } } = useForm<Destination>({
+  const queryClient = useQueryClient();
+  const [activities, setActivities] = React.useState<string[]>(['']);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<DestinationFormData>({
     defaultValues: {
       name: '',
       description: '',
       activities: [],
-      startDate: undefined,
-      endDate: undefined,
-      photos: [],
-    },
+      photos: []
+    }
   });
 
-  useEffect(() => {
-    if (isEdit && id) {
-      const fetchDestination = async () => {
-        try {
-          const destinationData = await getDestinationById(id);
-          const destination = destinationData.destination;
-          
-          setValue('name', destination.name);
-          setValue('description', destination.description || '');
-          setValue('startDate', destination.startDate ? new Date(destination.startDate) : undefined);
-          setValue('endDate', destination.endDate ? new Date(destination.endDate) : undefined);
-          
-          if (destination.activities) {
-            setActivities([...destination.activities, '']);
-          }
-        } catch (error) {
-          console.error('Error fetching destination:', error);
-        }
-      };
-      
-      fetchDestination();
-    }
-  }, [id, isEdit, setValue]);
+  const {
+    data: destination,
+    isLoading: isDestinationLoading,
+    isError: isDestinationError,
+  } = useQuery({
+    queryKey: ['destination', id],
+    queryFn: () => getDestinationById(id!),
+    enabled: isEdit && !!id,
+  });
 
-  const onSubmit = async (data: Destination) => {
-    try {
-      const destinationData = {
-        ...data,
-        activities: activities.filter(a => a.trim() !== ''),
-      };
-      
-      if (isEdit && id) {
-        await updateDestination(id, destinationData);
-      } else {
-        await createDestination(destinationData);
-      }
-      
+  const createMutation = useMutation({
+    mutationFn: createDestination,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['destinations'] });
       navigate('/destinations');
-    } catch (error) {
-      console.error('Error saving destination:', error);
+    },
+  });
+  
+
+  const updateMutation = useMutation({
+    mutationFn: (destinationData: DestinationFormData) =>
+      updateDestination(id!, destinationData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['destination', id] });
+      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+      navigate(`/destinations/${id}`);
+    },
+  });
+  
+
+  React.useEffect(() => {
+    if (isEdit && destination) {
+      setValue('name', destination.name);
+      setValue('description', destination.description || '');
+      setValue('startDate', destination.startDate ? new Date(destination.startDate) : undefined);
+      setValue('endDate', destination.endDate ? new Date(destination.endDate) : undefined);
+      
+      if (destination.activities) {
+        setActivities([...destination.activities, '']);
+      }
+    }
+  }, [isEdit, destination, setValue]);
+
+  const onSubmit = (data: DestinationFormData) => {
+    const destinationData = {
+      ...data,
+      activities: activities.filter((a) => a.trim() !== ''),
+    };
+
+    if (isEdit && id) {
+      updateMutation.mutate(destinationData);
+    } else {
+      createMutation.mutate(destinationData);
     }
   };
 
@@ -75,7 +109,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
     const newActivities = [...activities];
     newActivities[index] = value;
     setActivities(newActivities);
-    
+
     // Add a new empty field if this is the last one and it's being filled
     if (index === activities.length - 1 && value.trim() !== '') {
       setActivities([...newActivities, '']);
@@ -88,12 +122,24 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
     setActivities(newActivities);
   };
 
+  if (isDestinationLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isDestinationError) {
+    return <Typography color="error">Error loading destination data</Typography>;
+  }
+
   return (
     <Paper elevation={3} sx={{ padding: 3, margin: 2 }}>
       <Typography variant="h4" gutterBottom>
         {isEdit ? 'Edit Destination' : 'Create New Destination'}
       </Typography>
-      
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -112,7 +158,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12}>
             <Controller
               name="description"
@@ -128,7 +174,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               )}
             />
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
@@ -145,7 +191,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               />
             </LocalizationProvider>
           </Grid>
-          
+
           <Grid item xs={12} md={6}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
@@ -162,7 +208,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               />
             </LocalizationProvider>
           </Grid>
-          
+
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Activities
@@ -187,14 +233,29 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               </Box>
             ))}
           </Grid>
-          
+
           <Grid item xs={12}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button variant="outlined" onClick={() => navigate('/destinations')}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate(isEdit && id ? `/destinations/${id}` : '/destinations')}
+                disabled={createMutation.status ==="pending" || updateMutation.status ==="pending"}
+              >
                 Cancel
               </Button>
-              <Button type="submit" variant="contained" color="primary">
-                {isEdit ? 'Update Destination' : 'Create Destination'}
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={createMutation.status === "pending" || updateMutation.status === "pending"}
+              >
+                {createMutation.status ==="pending" || updateMutation.isPending ? (
+                  <CircularProgress size={24} />
+                ) : isEdit ? (
+                  'Update Destination'
+                ) : (
+                  'Create Destination'
+                )}
               </Button>
             </Box>
           </Grid>
