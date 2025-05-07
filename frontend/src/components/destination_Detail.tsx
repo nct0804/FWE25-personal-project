@@ -31,15 +31,29 @@ const DestinationDetail: React.FC = () => {
     enabled: !!id,
   });
 
-  const {
-    data: trips,
-    isLoading: isTripsLoading,
-    isError: isTripsError,
-  } = useQuery({
-    queryKey: ['tripsByDestination', id],
-    queryFn: () => getTripsByDestination(id!),
-    enabled: !!id,
-  });
+const {
+  data: trips,
+  isLoading: isTripsLoading,
+  isError: isTripsError,
+} = useQuery({
+  queryKey: ['tripsByDestination', id],
+  queryFn: async () => {
+    // Get all trips from the API
+    const allTrips = await getTripsByDestination(id!);
+    
+    return allTrips.filter(trip => {
+      if (!trip.destinations) return false;
+
+      return trip.destinations.some(dest => {
+        if (typeof dest === 'string') {
+          return dest === id;
+        }
+        return (dest._id === id || dest.id === id);
+      });
+    });
+  },
+  enabled: !!id,
+});
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteDestination(id!),
@@ -120,14 +134,23 @@ const DestinationDetail: React.FC = () => {
 
       {isTripsError ? (
         <Typography>Error loading trips.</Typography>
-      ) : trips && trips.length > 0 ? (
+      ) : isTripsLoading ? (
+        <Box sx={{ display: 'flex', py: 2 }}>
+          <CircularProgress size={20} sx={{ mr: 1 }} />
+          <Typography>Loading trips...</Typography>
+        </Box>
+        ) : trips && trips.length > 0 ? (
         <List>
           {trips.map((trip) => (
             <ListItem
               key={trip._id}
               component={Link}
               to={`/trips/${trip._id}`}
-              sx={{ textDecoration: 'none' }}
+              sx={{ textDecoration: 'none',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  borderRadius: 1}
+               }}
             >
               <ListItemText
                 primary={trip.name}
@@ -142,9 +165,12 @@ const DestinationDetail: React.FC = () => {
             </ListItem>
           ))}
         </List>
-      ) : (
-        <Typography>No trips found with this destination</Typography>
-      )}
+      ) :  (
+        <Box sx={{ py: 2, px: 1 }}>
+          <Typography variant="body1">
+            This destination hasn't been added to any trips yet.
+          </Typography>
+        </Box>)}
     </Paper>
   );
 };
