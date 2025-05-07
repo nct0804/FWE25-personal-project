@@ -18,9 +18,17 @@ export const getAllTrips = async (): Promise<Trip[]> => {
 };
 
 export const getTrip = async (id: string) => {
-  const response = await axios.get(`${API_BASE_URL}/trips/${id}`);
-  return response.data;
-}
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trips/${id}`);
+    console.log('API response for trip:', response.data);
+    // Extract the nested trip object from the response
+    return response.data.trip || response.data;
+  } catch (error) {
+    console.error(`Error fetching trip ${id}:`, error);
+    throw error;
+  }
+};
+
 export const createTrip = async (tripData: any) => {
   const response = await axios.post(`${API_BASE_URL}/trips`, tripData);
   return response.data;
