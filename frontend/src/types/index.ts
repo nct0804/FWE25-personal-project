@@ -11,6 +11,7 @@ export interface Trip {
   }
   
   export interface Destination {
+    id: string | undefined;
     _id: string;
     name: string;
     description?: string;
