@@ -50,7 +50,7 @@ const TripDetail: React.FC = () => {
     isError: isTripError,
   } = useQuery<Trip>({
     queryKey: ['trip', id],
-    queryFn: () => getTrip(id!).then((data) => data.trip),
+    queryFn: () => getTrip(id!), 
     enabled: !!id,
   });
 
@@ -137,11 +137,13 @@ const TripDetail: React.FC = () => {
         </Box>
 
         <TabPanel value="1">
+          <Typography variant="h6" gutterBottom>Start Date - End date</Typography>
           <Typography variant="subtitle1" gutterBottom>
             {trip.startDate && trip.endDate
               ? `${new Date(trip.startDate).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}`
               : 'No dates specified'}
           </Typography>
+          <Typography variant="h6" gutterBottom>Description</Typography>
           <Typography variant="body1" paragraph>{trip.description || 'No description provided'}</Typography>
           {(trip.participants ?? []).length > 0 && (
             <>

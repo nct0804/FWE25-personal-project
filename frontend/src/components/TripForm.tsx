@@ -90,19 +90,54 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
 
   React.useEffect(() => {
     if (isEdit && trip) {
-      setValue('name', trip.name);
+      console.log("Trip data from backend:", trip); // For debugging
+      
+      // Basic fields - with more robust handling
+      setValue('name', trip.name || '');
       setValue('description', trip.description || '');
       setValue('image', trip.image || '');
-      setValue('startDate', trip.startDate ? new Date(trip.startDate) : undefined);
-      setValue('endDate', trip.endDate ? new Date(trip.endDate) : undefined);
-      setValue('budget', trip.budget || 0);
       
-      if (trip.participants) {
-        setParticipants([...trip.participants, '']);
+      // Handle budget - explicit check for undefined
+      if (trip.budget !== undefined) {
+        setValue('budget', Number(trip.budget));
       }
       
+      // Handle dates - ensure proper Date object creation
+      if (trip.startDate) {
+        try {
+          const startDate = new Date(trip.startDate);
+          setValue('startDate', !isNaN(startDate.getTime()) ? startDate : undefined);
+        } catch (e) {
+          console.error("Error parsing startDate:", e);
+        }
+      }
+      
+      if (trip.endDate) {
+        try {
+          const endDate = new Date(trip.endDate);
+          setValue('endDate', !isNaN(endDate.getTime()) ? endDate : undefined);
+        } catch (e) {
+          console.error("Error parsing endDate:", e);
+        }
+      }
+      
+      if (Array.isArray(trip.participants)) {
+        setParticipants([...trip.participants, '']);
+      } else if (trip.participants) {
+        const participantArray = typeof trip.participants === 'string' 
+          ? [trip.participants] 
+          : Object.values(trip.participants);
+        setParticipants([...participantArray, '']);
+      } else {
+        setParticipants(['']);
+      }
       if (trip.destinations) {
-        setSelectedDestinations(trip.destinations.map((d: any) => d._id));
+        if (Array.isArray(trip.destinations)) {
+          const destIds = trip.destinations.map((dest: any) => 
+            typeof dest === 'string' ? dest : dest._id || dest.id
+          );
+          setSelectedDestinations(destIds);
+        }
       }
     }
   }, [isEdit, trip, setValue]);
@@ -125,7 +160,6 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
     }
   };
   
-  // Add this helper function in your component
   const normalizeDate = (date: string | Date): string => {
     const d = new Date(date);
     // Set time to 00:00:00 to avoid timezone issues
@@ -233,7 +267,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
                 render={({ field }) => (
                   <DatePicker
                     label="Start Date"
-                    value={field.value}
+                    value={field.value || null}
                     onChange={field.onChange}
                     renderInput={(params) => (
                       <TextField
@@ -257,10 +291,16 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
                 render={({ field }) => (
                   <DatePicker
                     label="End Date"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => <TextField {...params} fullWidth error={!!errors.endDate}
-                    helperText={errors.endDate?.message} />}
+                    value={field.value || null}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        error={!!errors.endDate}
+                        helperText={errors.endDate?.message}
+                      />
+                    )}
+                    onChange={(value) => field.onChange(value)}
                   />
                 )}
               />
