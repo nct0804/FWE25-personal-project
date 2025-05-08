@@ -36,3 +36,19 @@ export interface Trip {
     convertedAmount: number;
     rate: number;
   }
+
+  export interface BudgetSummaryData {
+    budget: number;
+    totalSpent: number;
+    remaining: number;
+    byCategory: Record<string, number>;
+    currency: string;
+    convertedValues: {
+      budget: number;
+      totalSpent: number;
+      remaining: number;
+      byCategory: Record<string, number>;
+      currency: string;
+      rate: number;
+    } | null;
+  }
