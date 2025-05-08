@@ -1,20 +1,29 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getBudgetSummary } from '../api/budget';
+import React, { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getBudgetSummary, createBudget } from '../api/budget';
 import {
   Typography,
   Paper,
   Box,
-  Grid,
   CircularProgress,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  Divider,
+  TextField,
+  Button,
+  Grid,
 } from '@mui/material';
 
 interface BudgetSummaryProps {
   tripId: string;
+}
+
+interface ExpenseData {
+  category: string;
+  amount: number;
+  description?: string;
 }
 
 interface BudgetSummaryData {
@@ -35,16 +44,38 @@ interface BudgetSummaryData {
 
 const BudgetSummary: React.FC<BudgetSummaryProps> = ({ tripId }) => {
   const [currency, setCurrency] = React.useState('EUR');
+  const queryClient = useQueryClient();
+  const [newExpense, setNewExpense] = useState<ExpenseData>({
+    category: '',
+    amount: 0,
+    description: ''
+  });
+
+const addExpenseMutation = useMutation({
+  mutationFn: (expense: ExpenseData) => createBudget(tripId, expense),
+  onSuccess: () => {
+    console.log('Expense added successfully');
+    // Reset form and refetch data
+    setNewExpense({ category: '', amount: 0, description: '' });
+    queryClient.invalidateQueries({ queryKey: ['budgetSummary', tripId] });
+  },
+  onError: (error) => {
+    console.error('Failed to add expense:', error);
+    // Only show generic error, don't alert about exceeding budget
+    alert('Error adding expense. Please try again.');
+  }
+});
 
   const {
     data: summary,
     isLoading,
     isError,
+    error
   } = useQuery<BudgetSummaryData>({
     queryKey: ['budgetSummary', tripId, currency],
     queryFn: () => getBudgetSummary(tripId, currency !== 'EUR' ? currency : undefined),
   });
-
+  
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -52,9 +83,19 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ tripId }) => {
       </Box>
     );
   }
-
+  
   if (isError) {
-    return <Typography color="error">Error loading budget summary</Typography>;
+    return (
+      <Box sx={{ padding: 2 }}>
+        <Typography color="error">Error loading budget summary</Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          {error instanceof Error ? error.message : 'Unknown error occurred'}
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Trip ID: {tripId}, Currency: {currency}
+        </Typography>
+      </Box>
+    );
   }
 
   if (!summary) {
@@ -70,24 +111,9 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ tripId }) => {
       <Typography variant="h5" gutterBottom>
         Budget Summary
       </Typography>
-      
-      <FormControl sx={{ marginBottom: 3, minWidth: 120 }}>
-        <InputLabel>Currency</InputLabel>
-        <Select
-          value={currency}
-          onChange={(e) => setCurrency(e.target.value as string)}
-          label="Currency"
-        >
-          <MenuItem value="EUR">EUR</MenuItem>
-          {summary.convertedValues && (
-            <MenuItem value={summary.convertedValues.currency}>
-              {summary.convertedValues.currency}
-            </MenuItem>
-          )}
-        </Select>
-      </FormControl>
 
       <Grid container spacing={3}>
+      </Grid>
         <Grid item xs={12} md={4}>
           <Paper elevation={2} sx={{ padding: 2 }}>
             <Typography variant="h6" gutterBottom>
@@ -138,7 +164,66 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ tripId }) => {
             ))}
           </Grid>
         </Grid>
-      </Grid>
+        
+        <Box sx={{ mt: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          Add Expense
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Category"
+              select
+              value={newExpense.category}
+              onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+            >
+              <MenuItem value="Accommodation">Accommodation</MenuItem>
+              <MenuItem value="Food">Food</MenuItem>
+              <MenuItem value="Transportation">Transportation</MenuItem>
+              <MenuItem value="Activities">Activities</MenuItem>
+              <MenuItem value="Shopping">Shopping</MenuItem>
+              <MenuItem value="Other">Other</MenuItem>
+            </TextField>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Amount (Euro)"
+              value={newExpense.amount}
+              onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
+            />
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="Description (optional)"
+              value={newExpense.description}
+              onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button 
+              variant="contained" 
+              color="primary"
+              onClick={() => addExpenseMutation.mutate(newExpense)}
+              disabled={!newExpense.category || newExpense.amount <= 0 || addExpenseMutation.isPending}
+            >
+              {addExpenseMutation.isPending ? 'Adding...' : 'Add Expense'}
+            </Button>
+            {addExpenseMutation.isError && (
+              <Typography color="error" sx={{ mt: 1 }}>
+                Failed to add expense. Please try again.
+              </Typography>
+            )}
+          </Grid>
+
+        </Grid>
+      </Box>
     </Paper>
   );
 };
