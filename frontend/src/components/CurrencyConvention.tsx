@@ -21,33 +21,50 @@ const CurrencyConverter: React.FC = () => {
   const [toCurrency, setToCurrency] = useState<string>('JPY');
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
   const [rate, setRate] = useState<number | null>(null);
+  const COMMON_CURRENCIES = ['EUR', 'USD', 'JPY', 'GBP', 'CHF', 'CAD', 'AUD', 'CNY'];
 
   const {
-    data: currencies,
+    data: currencies = COMMON_CURRENCIES, 
     isLoading: isCurrenciesLoading,
     isError: isCurrenciesError,
-  } = useQuery({ queryKey: ['supportedCurrencies'], queryFn: getSupportedCurrencies });
-
-  const convertMutation = useMutation<
-    { convertedAmount: number; rate: number }, // result
-    unknown,                                  // error type
-    { amount: number; fromCurrency: string; toCurrency: string } // variables
-  >({
-    mutationFn: ({ amount, fromCurrency, toCurrency }) => 
-      convertCurrency(amount, fromCurrency, toCurrency),
-
-    onSuccess: (data) => {
-      setConvertedAmount(data.convertedAmount);
-      setRate(data.rate);
-    },
+  } = useQuery({ 
+    queryKey: ['supportedCurrencies'], 
+    queryFn: getSupportedCurrencies,
+    retry: 1, 
+    staleTime: 1000 * 60 * 60, 
   });
 
+  const convertMutation = useMutation<
+  { convertedAmount: number; rate: number },
+  unknown,
+  { amount: number; fromCurrency: string; toCurrency: string }
+>({
+  mutationFn: ({ amount, fromCurrency, toCurrency }) => 
+    convertCurrency(amount, fromCurrency, toCurrency),
+  onSuccess: (data) => {
+    setConvertedAmount(data.convertedAmount);
+    setRate(data.rate);
+  },
+  // Add this error handler
+  onError: (error) => {
+    console.error("Currency conversion failed:", error);
+    alert("Failed to convert currency. Please try again.");
+  }
+});
 
   
-  const handleConvert = () => {
-    if (amount <= 0) return;
-    convertMutation.mutate({ amount, fromCurrency, toCurrency });
-  };
+const handleConvert = () => {
+  console.log("Convert button clicked", { amount, fromCurrency, toCurrency });
+  
+  if (amount <= 0) {
+    console.warn("Cannot convert zero or negative amount");
+    alert("Please enter a positive amount");
+    return;
+  }
+  
+  console.log("Attempting currency conversion...");
+  convertMutation.mutate({ amount, fromCurrency, toCurrency });
+};
   
   if (isCurrenciesLoading) {
     return (
