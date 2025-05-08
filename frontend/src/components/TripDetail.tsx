@@ -132,7 +132,6 @@ const TripDetail: React.FC = () => {
             <Tab label="Overview" value="1" />
             <Tab label="Destinations" value="2" />
             <Tab label="Budget" value="3" />
-            <Tab label="Currency" value="4" />
           </TabList>
         </Box>
 
@@ -221,7 +220,6 @@ const TripDetail: React.FC = () => {
         </TabPanel>
 
         <TabPanel value="3">{id && <BudgetSummary tripId={id} />}</TabPanel>
-        <TabPanel value="4"><CurrencyConverter /></TabPanel>
       </TabContext>
     </Paper>
   );

@@ -122,7 +122,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
       }
       
       if (Array.isArray(trip.participants)) {
-        setParticipants([...trip.participants, '']);
+        setParticipants([...trip.participants.map((p: any) => String(p)), '']);
       } else if (trip.participants) {
         const participantArray = typeof trip.participants === 'string' 
           ? [trip.participants] 
