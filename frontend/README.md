@@ -1,3 +1,11 @@
+Edit trips: properly loading the existing trip data from the backend before the user can change anything
+
+
+searching by start and end dates, either independently or in combination with name search.
+
+Expenses: When you go over you budger, it will display as red negative numbers
+
+07.05: Finished 99%
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
