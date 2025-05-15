@@ -3,8 +3,7 @@ version: '3.9'
 services:
   api:
     build:
-      context: ./backend
-      dockerfile: ../Dockerfile  
+      context: ./backend 
     container_name: booking-api
     ports:
       - '5000:5000'
@@ -19,6 +18,21 @@ services:
     env_file:
       - ./backend/.env
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: booking-frontend
+    ports:
+      - '3000:3000'
+    environment:
+      - REACT_APP_API_URL=http://api:5000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    restart: unless-stopped
+
   mongo:
     image: mongo:6
     command: mongod --quiet --logpath=/dev/null
@@ -31,5 +45,3 @@ services:
 
 volumes:
   mongo-data:
-
-
