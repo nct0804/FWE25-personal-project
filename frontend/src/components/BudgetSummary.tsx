@@ -151,18 +151,24 @@ const addExpenseMutation = useMutation({
           <Typography variant="h6" gutterBottom sx={{ marginTop: 2 }}>
             Spending by Category
           </Typography>
-          <Grid container spacing={2}>
-            {Object.entries(displayData.byCategory).map(([category, amount]) => (
-              <Grid item xs={12} sm={6} md={4} key={category}>
-                <Paper elevation={1} sx={{ padding: 2 }}>
-                  <Typography variant="subtitle1">{category}</Typography>
-                  <Typography variant="body1">
-                    {displayData.currency} {(amount as number).toFixed(2)}
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
+          {Object.keys(displayData.byCategory).length === 0 ? (
+            <Typography variant="body1" color="text.secondary">
+              No expenses recorded yet. Add your first expense below.
+            </Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {Object.entries(displayData.byCategory).map(([category, amount]) => (
+                <Grid item xs={12} sm={6} md={4} key={category}>
+                  <Paper elevation={1} sx={{ padding: 2 }}>
+                    <Typography variant="subtitle1">{category}</Typography>
+                    <Typography variant="body1">
+                      {displayData.currency} {(amount as number).toFixed(2)}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Grid>
         
         <Box sx={{ mt: 4 }}>
@@ -172,7 +178,7 @@ const addExpenseMutation = useMutation({
         <Divider sx={{ mb: 2 }} />
         
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Category"
@@ -189,7 +195,7 @@ const addExpenseMutation = useMutation({
             </TextField>
           </Grid>
           
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Amount (Euro)"
@@ -198,19 +204,23 @@ const addExpenseMutation = useMutation({
             />
           </Grid>
           
-          <Grid item xs={12} sm={4}>
-            <TextField
-              fullWidth
-              label="Description (optional)"
-              value={newExpense.description}
-              onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
-            />
-          </Grid>
           <Grid item xs={12}>
             <Button 
               variant="contained" 
               color="primary"
-              onClick={() => addExpenseMutation.mutate(newExpense)}
+              onClick={() => {
+                console.log('Add Expense button clicked');
+                if (!newExpense.category) {
+                  alert('Please select a category');
+                  return;
+                }
+                if (!newExpense.amount || newExpense.amount <= 0) {
+                  alert('Please enter a valid amount');
+                  return;
+                }
+                
+                addExpenseMutation.mutate(newExpense);
+              }}
               disabled={!newExpense.category || newExpense.amount <= 0 || addExpenseMutation.isPending}
             >
               {addExpenseMutation.isPending ? 'Adding...' : 'Add Expense'}

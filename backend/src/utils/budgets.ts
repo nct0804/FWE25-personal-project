@@ -5,7 +5,7 @@ const BudgetSchema = new Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Transport', 'Accommodation', 'Food', 'Activities', 'Shopping', 'Other'] 
+    enum: ['Transportation', 'Accommodation', 'Food', 'Activities', 'Shopping', 'Other'] 
   },
   amount: { type: Number, required: true, min: 0 },
   description: String,
