@@ -91,9 +91,8 @@ class TripController{
         
     updateTrip = async (req: express.Request, res: express.Response) =>{
         try {
-            const { name, description, image, participants, startDate, endDate, destinations } = req.body;
+            const { name, description, image, participants, startDate, endDate, destinations, budget } = req.body;
             const {id} = req.params;
-
 
             const updateData: any = { ...req.body };
             if (startDate) updateData.startDate = new Date(startDate);
@@ -109,6 +108,7 @@ class TripController{
                 trip.startDate = startDate;
                 trip.endDate = endDate;
                 trip.destinations = destinations;
+                trip.budget = budget !== undefined ? Number(budget) : trip.budget;
                 const updatedTrip = await trip.save();
                 res.status(200).json({message: "Trip updated",updatedTrip});
             }

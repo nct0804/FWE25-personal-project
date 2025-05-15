@@ -34,9 +34,23 @@ export const createTrip = async (tripData: any) => {
   return response.data;
 }
 export const updateTrip = async (id: string, tripData: any) => {
-  const response = await axios.put(`${API_BASE_URL}/trips/${id}`, tripData);
-  return response.data;
-}
+  // Format the data to ensure budget is handled correctly
+  const formattedData = {
+    ...tripData,
+    // Make sure budget is sent as a number and is explicitly included
+    budget: tripData.budget !== undefined ? Number(tripData.budget) : 0
+  };
+  
+  console.log('Updating trip with data:', formattedData);
+  
+  try {
+    const response = await axios.put(`${API_BASE_URL}/trips/${id}`, formattedData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating trip:', error);
+    throw error;
+  }
+};
 export const deleteTrip = async (id: string) => {
   const response = await axios.delete(`${API_BASE_URL}/trips/${id}`);
   return response.data;

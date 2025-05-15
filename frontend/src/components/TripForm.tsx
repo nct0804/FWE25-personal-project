@@ -142,23 +142,25 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
     }
   }, [isEdit, trip, setValue]);
 
-  const onSubmit = (data: TripFormData) => {
-    const formattedData = {
-      ...data,
-      startDate: data.startDate ? normalizeDate(data.startDate) : undefined,
-      endDate: data.endDate ? normalizeDate(data.endDate) : undefined,
-      participants: participants.filter((p) => p.trim() !== ''),
-      destinations: selectedDestinations,
-    };
-  
-    console.log('Submitting trip data:', formattedData); // For debugging
-  
-    if (isEdit && id) {
-      updateMutation.mutate(formattedData);
-    } else {
-      createMutation.mutate(formattedData);
-    }
+const onSubmit = (data: TripFormData) => {
+  const formattedData = {
+    ...data,
+    startDate: data.startDate ? normalizeDate(data.startDate) : undefined,
+    endDate: data.endDate ? normalizeDate(data.endDate) : undefined,
+    participants: participants.filter((p) => p.trim() !== ''),
+    destinations: selectedDestinations,
+    // Explicitly format budget as a number
+    budget: data.budget !== undefined ? Number(data.budget) : undefined
   };
+
+  console.log('Submitting trip data with budget:', formattedData.budget); // For debugging
+
+  if (isEdit && id) {
+    updateMutation.mutate(formattedData);
+  } else {
+    createMutation.mutate(formattedData);
+  }
+};
   
   const normalizeDate = (date: string | Date): string => {
     const d = new Date(date);
