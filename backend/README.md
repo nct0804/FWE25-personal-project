@@ -125,14 +125,19 @@ You'll notice the folders and requests are organized on purpose — some request
 3. Select files
 
 4. Choose the json file name **backend_testing.postman_collection.json** that in the backend folder
+![Alt text](backend/picture-reference/Screen Shot 2025-05-16 at 13.57.38.png)
+![Alt text](backend/picture-reference/Screen Shot 2025-05-16 at 13.59.12.png)
+
 
 #### Using Runner to run multiple requests consecutively(Auto).
 
-1. Simply right click on the collection(Recommended) or the folder you want to test (might failed if you test the folder that the requests are depend on others)
+1. Simply right click on the collection or the folder you want to test (might failed if you test the folder that the requests are depend on others)
 
 2. Select Run from the dropdown box
 
 3. Select Run "backend testing"
+![Alt text](backend/picture-reference/Screen Shot 2025-05-16 at 13.59.42.png)
+![Alt text](backend/picture-reference/Screen Shot 2025-05-16 at 14.00.14.png)
 
 #### Manually testing every single request
 
