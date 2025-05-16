@@ -40,7 +40,7 @@ Server running on http://localhost:5000
 - Relationship management between trips and destinations
 - Postman-collection Testing
 
-###  Task #1: Budget Tracker
+### Freestyle Task #1: Budget Tracker
 >Überrasche uns mit einem Feature, welches nicht in der
 Aufgabenbeschreibung gefordert ist. Wichtig: Es muss zu dem aktuellen
 Projekt passen. Dieses Feature darf keine Daten von einer externen API
@@ -56,7 +56,7 @@ Giving the family, friends group opportunity to:
     Manage spending sources, expenses and remaining budget
 But its not mandantory if the group are ready to let the hair down hhehe
 
-###  Task #2: Currency Exchange
+### Freestyle Task #2: Currency Exchange
 > Überrasche uns mit einem weiteren Feature, welches nicht in der Aufgabenbeschreibung gefordert ist. Wichtig: Es muss zu dem aktuellen Projekt passen. Dieses Feature muss Daten von einer externen API konsumieren.
 
 Featuring currency exchange functionality powered by [Frankfurter.app API](https://frankfurter.dev/), allowing travelers to convert between their home currency and supported destination currencies.
