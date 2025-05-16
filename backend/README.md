@@ -49,12 +49,11 @@ erweitern.
 
 Giving the family, friends group opportunity to:
 
-    Set a total budget for a whole trip
+1. Set a total budget for a whole trip
 
-    Set individual expenses (with categories)
+2. Set individual expenses (with categories)
 
-    Manage spending sources, expenses and remaining budget
-But its not mandantory if the group are ready to let the hair down hhehe
+3.  Manage spending sources, expenses and remaining budget  
 
 ### Freestyle Task #2: Currency Exchange
 > Überrasche uns mit einem weiteren Feature, welches nicht in der Aufgabenbeschreibung gefordert ist. Wichtig: Es muss zu dem aktuellen Projekt passen. Dieses Feature muss Daten von einer externen API konsumieren.
