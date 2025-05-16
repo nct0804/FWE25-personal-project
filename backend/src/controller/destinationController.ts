@@ -57,22 +57,26 @@ class destinationController{
     try {
         const { name, description, activities, startDate, endDate, photos } = req.body;
         
-        const updateData: any = { ...req.body };
-        if (startDate) updateData.startDate = new Date(startDate);
-        if (endDate) updateData.endDate = new Date(endDate);
+        console.log(`Updating destination ${req.params.id} with photos:`, photos ? photos.length : 0);
         
-        const updatedDestination = await Destination.findByIdAndUpdate(
-        req.params.id,
-        updateData,
-        { new: true, runValidators: true }
-        );
-
-        if (!updatedDestination) {
-            return res.status(404).json({ message: 'Destination not found' });
-          }
+        const destination = await Destination.findById(req.params.id);
         
-        res.status(200).json({message: "succesfully updated", updatedDestination});
+        if (!destination) {
+        return res.status(404).json({ message: 'Destination not found' });
+        }
+        
+        destination.name = name || destination.name;
+        destination.description = description !== undefined ? description : destination.description;
+        
+        if (startDate) destination.startDate = new Date(startDate);
+        if (endDate) destination.endDate = new Date(endDate);
+        if (activities) destination.activities = activities;
+        if (photos) destination.photos = photos;
+        const updatedDestination = await destination.save();
+        
+        res.status(200).json({message: "successfully updated", updatedDestination});
     } catch (error) {
+        console.error('Error updating destination:', error);
         res.status(500).json({ message: 'Error updating destination', error });
     }
     };

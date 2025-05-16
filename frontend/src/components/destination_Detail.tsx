@@ -112,6 +112,28 @@ const {
           {new Date(destination.endDate).toLocaleDateString()}
         </Typography>
       )}
+      
+      {destination.photos && destination.photos.length > 0 && (
+        <Box sx={{ my: 3 }}>
+          <Typography variant="h6" gutterBottom>Photos</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {destination.photos.map((photo, index) => (
+              <img
+                key={index}
+                src={photo}
+                alt={`${destination.name} - ${index + 1}`}
+                style={{
+                  width: '250px',
+                  height: '180px',
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
 
       {destination.activities && destination.activities.length > 0 && (
         <>

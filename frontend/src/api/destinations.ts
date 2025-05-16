@@ -30,15 +30,58 @@ export const getDestinationById = async (id: string): Promise<Destination> => {
 };
 
 export const createDestination = async (destinationData: any) => {
-  const response = await axios.post(`${API_BASE_URL}/destinations`, destinationData);
-  return response.data;
+  try {
+    // Log photo sizes for debugging
+    if (destinationData.photos && destinationData.photos.length > 0) {
+      console.log(`Sending ${destinationData.photos.length} photos, avg size: ${
+        Math.round(destinationData.photos.reduce((acc: number, photo: string) => 
+          acc + photo.length, 0) / destinationData.photos.length / 1024)
+      }KB`);
+    }
+    
+    const response = await axios.post(
+      `${API_BASE_URL}/destinations`, 
+      destinationData,
+      { 
+        timeout: 30000, // 30 seconds
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating destination:', error);
+    throw error;
+  }
 };
 
 export const updateDestination = async (id: string, destinationData: any) => {
-  const response = await axios.put(`${API_BASE_URL}/destinations/${id}`, destinationData);
-  return response.data;
+  try {
+    // Log photo sizes for debugging
+    if (destinationData.photos && destinationData.photos.length > 0) {
+      console.log(`Sending ${destinationData.photos.length} photos, avg size: ${
+        Math.round(destinationData.photos.reduce((acc: number, photo: string) => 
+          acc + photo.length, 0) / destinationData.photos.length / 1024)
+      }KB`);
+    }
+    
+    const response = await axios.put(
+      `${API_BASE_URL}/destinations/${id}`, 
+      destinationData,
+      { 
+        timeout: 30000, // 30 seconds
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating destination:', error);
+    throw error;
+  }
 };
-
 export const deleteDestination = async (id: string): Promise<void> => {
   await axios.delete(`${API_BASE_URL}/destinations/${id}`);
 };
