@@ -15,6 +15,40 @@ This feature provides a structured yet flexible way to plan complex trips, helpi
 We also provides a built-in currency exchange feature, designed to help travelers prepare for their trips by comparing exchange rates in real time. This tool allows users to convert between different currencies based on up-to-date exchange rates, making it easier to estimate travel costs, manage budgets, and plan expenses across multiple countries.
 
 
+
+
+# Set up the project with Docker!! 
+For some reasons i couldn't install and run MongoDB locally, so i had been working on and running everything through Docker! (Life Saver!).
+So lets get started.
+
+-> So there will be 2 options to run my application
+
+## 1. Run both backend and frontend with DOCKER!!
+Navigate to the root project directory `fw--ss--25--1121462`, and run these commands below:
+```
+    docker-compose up --build
+```
+
+Once you receive in the terminal, you're good to go! (it might take some time because of the installation!)
+```
+Connected to MongoDB
+Server running on http://localhost:5000
+```
+
+## 2. Run both backend and frontend separately
+
+**Each folder contains a detailed explanation of its specific functionality and instructions on how to run the application.!**
+
+## Backend 
+The backend is built with Node.js, Express, MongoDB and TypeScript, offering a RESTful API that handles data related to trips and destinations using standard CRUD operations.
+
+Detailed instructions are provided in its own section: [backend](backend/README.md)
+
+## Frontend
+The frontend is developed using React and TypeScript, it connects to the backend API to fetch and manage travel data, allowing users to create, read, update, and delete their travel plans.
+
+Detailed instructions are provided in its own section: [frontend]()
+
 ## Project Structure
 
 ```
@@ -37,40 +71,24 @@ fwe-ss-25-1121462
 │   │       ├── currency.ts
 │   │       ├── destinations.ts
 │   │       └── trips.ts
+└── frontend
+    │   ├── index.tsx
+    │   ├── App.tsx    
+    ├── src
+    │   ├── api
+    │   │   ├── budget.ts
+    │   │   ├── currency.ts
+    │   │   ├── destinations.ts
+    │   │   └── trips.ts
+    │   ├── components
+    │   │   ├── BudgetSummary.tsx
+    │   │   ├── CurrencyConvention.tsx
+    │   │   ├── DestinationList.tsx
+    │   │   ├── TripDetail.tsx
+    │   │   ├── TripForm.tsx
+    │   │   ├── TripList.tsx
+    │   │   ├── destination_Detail.tsx
+    │   │   └── destination_Form.tsx
+    │   └── types
+    │       └── index.ts
 ```
-
-# Set up the project with Docker!! 
-For some reasons i couldn't install and run MongoDB locally, so i had been working on and running everything through Docker! (Life Saver!).
-So lets get started.
-
-#### 0. Install node modules from package.json
-Change your directory to `backend` folder, make sure your console is within the right repository folder!
-```
-    cd backend/ (if for installing modules)
-
-    npm install
-```
-#### 1. Set up and run Docker
-Navigate to the root project directory `fw--ss--25--1121462`, and run these commands below:
-```
-    cd .. ( if you are in backend/ folder)
-    
-    docker-compose down --volumes
-
-    docker-compose up --build
-```
-
-Once you receive in the terminal, you're good to go! (it might take some time!)
-```
-Connected to MongoDB
-Server running on http://localhost:5000
-```
-## Backend 
-The backend is built with Node.js, Express, MongoDB and TypeScript, offering a RESTful API that handles data related to trips and destinations using standard CRUD operations.
-
-Detailed instructions are provided in its own section: [backend](backend/README.md)
-
-## Frontend
-The frontend is developed using React and TypeScript, it connects to the backend API to fetch and manage travel data, allowing users to create, read, update, and delete their travel plans.
-
-Detailed instructions are provided in its own section: [frontend]()
