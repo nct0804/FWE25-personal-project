@@ -42,35 +42,35 @@ Server running on http://localhost:5000
 ## Backend 
 The backend is built with Node.js, Express, MongoDB and TypeScript, offering a RESTful API that handles data related to trips and destinations using standard CRUD operations.
 
-Detailed instructions are provided in its own section: [backend](backend/README.md)
+Detailed instructions are provided in its own section: [backend](backend/)
 
 ## Frontend
 The frontend is developed using React and TypeScript, it connects to the backend API to fetch and manage travel data, allowing users to create, read, update, and delete their travel plans.
 
-Detailed instructions are provided in its own section: [frontend]()
+Detailed instructions are provided in its own section: [frontend](frontend/)
 
 ## Project Structure
 
 ```
 fwe-ss-25-1121462
 ├── backend
-│   ├── src
-│   │   ├── controller
-│   │   │   ├── budgetController.ts
-│   │   │   ├── currencyController.ts
-│   │   │   ├── destinationController.ts
-│   │   │   └── tripController.ts
-│   │   ├── index.ts
-│   │   ├── routes
-│   │   │   ├── budgetRoutes.ts
-│   │   │   ├── currencyRoutes.ts
-│   │   │   ├── destinationRoutes.ts
-│   │   │   └── tripRoutes.ts
-│   │   └── utils
-│   │       ├── budgets.ts
-│   │       ├── currency.ts
-│   │       ├── destinations.ts
-│   │       └── trips.ts
+    ├── src
+    │   ├── controller
+    │   │   ├── budgetController.ts
+    │   │   ├── currencyController.ts
+    │   │   ├── destinationController.ts
+    │   │   └── tripController.ts
+    │   ├── index.ts
+    │   ├── routes
+    │   │   ├── budgetRoutes.ts
+    │   │   ├── currencyRoutes.ts
+    │   │   ├── destinationRoutes.ts
+    │   │   └── tripRoutes.ts
+    │   └── utils
+    │       ├── budgets.ts
+    │       ├── currency.ts
+    │       ├── destinations.ts
+    │       └── trips.ts
 └── frontend
     │   ├── index.tsx
     │   ├── App.tsx    
