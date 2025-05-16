@@ -1,6 +1,19 @@
 # FWESS251121462 - Project Overview
 
-Our travel booking web app simplifies trip planning for creating and organizing itineraries. Easily manage destinations, track activities, and manage your budget with integrated currency exchange function.
+Our travel planner web app simplifies trip planning for creating and organizing itineraries. Easily manage destinations, track activities, and manage your budget and expenses.
+
+The application allows traveller to create and customize their own destinations within a trip. For each destination, users can freely provide a name, description, travel dates, and a list of planned activities. This flexible approach lets travellers organize their travel itinerary according to their personal preferences and plans.
+
+Once created, these destinations can be added to a specific trip. A single trip can include as many destinations as the traveler wants, allowing for comprehensive cites or countries travel planning.
+
+Example:
+If you're planning a trip to Japan, you might create several destinations such as Tokyo, Osaka, Shibuya... For each of these destinations, you can specify the exact dates you’ll be staying there and list activities such as visiting Tokyo Tower, exploring Dotonbori Street in Osaka, or shopping in Shibuya.
+
+This feature provides a structured yet flexible way to plan complex trips, helping users organize their travel details clearly and efficiently.
+
+
+We also provides a built-in currency exchange feature, designed to help travelers prepare for their trips by comparing exchange rates in real time. This tool allows users to convert between different currencies based on up-to-date exchange rates, making it easier to estimate travel costs, manage budgets, and plan expenses across multiple countries.
+
 
 ## Project Structure
 
