@@ -125,7 +125,21 @@ const TripDetail: React.FC = () => {
       </Box>
 
       <Typography variant="h4" gutterBottom>{trip.name}</Typography>
-
+      {trip.image && (
+          <Box sx={{ my: 3 }}>
+            <img 
+              src={trip.image} 
+              alt={trip.name}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '400px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+              }}
+            />
+          </Box>
+        )}
+        
       <TabContext value={tabValue}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabList onChange={handleTabChange}>

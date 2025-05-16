@@ -109,6 +109,7 @@ class TripController{
                 trip.endDate = endDate;
                 trip.destinations = destinations;
                 trip.budget = budget !== undefined ? Number(budget) : trip.budget;
+                trip.image = image;
                 const updatedTrip = await trip.save();
                 res.status(200).json({message: "Trip updated",updatedTrip});
             }

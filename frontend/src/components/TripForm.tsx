@@ -22,7 +22,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-
+import { PhotoCamera, Delete } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 interface TripFormProps {
   isEdit?: boolean;
 }
@@ -44,6 +45,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
   const queryClient = useQueryClient();
   const [participants, setParticipants] = React.useState<string[]>(['']);
   const [selectedDestinations, setSelectedDestinations] = React.useState<string[]>([]);
+  const [photosPreviews, setPhotosPreview] = React.useState<string | null>(null);
 
   const {
     control,
@@ -88,6 +90,75 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
     },
   });
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.match('image.*')) {
+      alert('Please select an image file (JPEG, PNG, etc.)');
+      return;
+    }
+
+    // Limit file size to 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image size should be less than 2MB');
+      return;
+    }
+
+    const compressImage = (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            
+            // Calculate new dimensions - reduce size to 800px max
+            let width = img.width;
+            let height = img.height;
+            if (width > 800 || height > 800) {
+              const aspectRatio = width / height;
+              if (width > height) {
+                width = 800;
+                height = width / aspectRatio;
+              } else {
+                height = 800;
+                width = height * aspectRatio;
+              }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+            
+            // Use lower quality for JPEG compression
+            const base64String = canvas.toDataURL('image/jpeg', 0.4);
+            resolve(base64String);
+          };
+          img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    compressImage(file)
+      .then((base64String) => {
+        setPhotosPreview(base64String);
+        setValue('image', base64String);
+      })
+      .catch((error) => {
+        console.error('Error processing image:', error);
+        alert('Failed to process the image. Please try a different one.');
+      });
+  };
+
+  const removeImage = () => {
+    setPhotosPreview(null);
+    setValue('image', '');
+  };
+
   React.useEffect(() => {
     if (isEdit && trip) {
       console.log("Trip data from backend:", trip); // For debugging
@@ -111,6 +182,10 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
           console.error("Error parsing startDate:", e);
         }
       }
+
+      if (trip.image) {
+      setPhotosPreview(trip.image);
+      }
       
       if (trip.endDate) {
         try {
@@ -126,7 +201,7 @@ const TripForm: React.FC<TripFormProps> = ({ isEdit = false }) => {
       } else if (trip.participants) {
         const participantArray = typeof trip.participants === 'string' 
           ? [trip.participants] 
-          : Object.values(trip.participants);
+          : Object.values(trip.participants).map((p: any) => String(p));
         setParticipants([...participantArray, '']);
       } else {
         setParticipants(['']);
@@ -149,11 +224,11 @@ const onSubmit = (data: TripFormData) => {
     endDate: data.endDate ? normalizeDate(data.endDate) : undefined,
     participants: participants.filter((p) => p.trim() !== ''),
     destinations: selectedDestinations,
-    // Explicitly format budget as a number
-    budget: data.budget !== undefined ? Number(data.budget) : undefined
+    budget: data.budget !== undefined ? Number(data.budget) : undefined,
+    image: photosPreviews ?? undefined  // Ensure image is string or undefined
   };
 
-  console.log('Submitting trip data with budget:', formattedData.budget); // For debugging
+  console.log('Submitting trip data with image:', formattedData.image ? 'Image included' : 'No image');
 
   if (isEdit && id) {
     updateMutation.mutate(formattedData);
@@ -385,6 +460,65 @@ const onSubmit = (data: TripFormData) => {
                   />
                 );
               })}
+            </Box>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Trip Image
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<PhotoCamera />}
+                sx={{ mb: 2 }}
+                disabled={photosPreviews !== null && photosPreviews.length >= 1}
+              >
+                Upload Image
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={photosPreviews !== null && photosPreviews.length >= 1}
+                />
+              </Button>
+
+              {photosPreviews !== null && photosPreviews.length >= 1 && (
+                <Typography variant="caption" color="error">
+                  Maximum 1 image for thumbnail allowed
+                </Typography>
+              )}
+
+              {photosPreviews && (
+                <Box sx={{ mt: 2, position: 'relative' }}>
+                  <img 
+                    src={photosPreviews} 
+                    alt="Trip preview" 
+                    style={{ 
+                      maxWidth: '100%', 
+                      maxHeight: '200px', 
+                      borderRadius: '4px' 
+                    }} 
+                  />
+                  <IconButton 
+                    onClick={removeImage}
+                    sx={{ 
+                      position: 'absolute', 
+                      top: 5, 
+                      right: 5, 
+                      backgroundColor: 'rgba(255,255,255,0.7)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                      }
+                    }}
+                    size="small"
+                  >
+                    <Delete />
+                  </IconButton>
+                </Box>
+              )}
             </Box>
           </Grid>
 

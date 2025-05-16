@@ -1,6 +1,8 @@
 // this is the homepage website
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { Avatar } from '@mui/material';
+import { Image as ImageIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { getAllTrips, searchTrips } from '../api/trips';
 import { Trip } from '../types';
@@ -274,6 +276,20 @@ const TripList: React.FC = () => {
                   }
                 }}
               >
+                {trip.image ? (
+                  <Avatar 
+                    src={trip.image} 
+                    variant="rounded" 
+                    sx={{ width: 60, height: 60, mr: 2 }} 
+                  />
+                ) : (
+                  <Avatar 
+                    sx={{ width: 60, height: 60, mr: 2 }} 
+                    variant="rounded"
+                  >
+                    <ImageIcon />
+                  </Avatar>
+                )}
                 <ListItemText
                   primary={trip.name}
                   secondary={`${formatTripDates(trip)} - ${
