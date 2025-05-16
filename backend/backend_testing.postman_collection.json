@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "faec164b-4509-4641-b621-bad3f5b56512",
+		"_postman_id": "fc9a3a98-2001-4a80-9812-7f573c43add4",
 		"name": "backend testing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "44407978"
@@ -394,24 +394,6 @@
 			"item": [
 				{
 					"name": "Get Supported Currencies",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:5000/api/currency/currencies",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"api",
-								"currency",
-								"currencies"
-							]
-						}
-					},
-					"response": [],
 					"event": [
 						{
 							"listen": "test",
@@ -432,7 +414,25 @@
 								"type": "text/javascript"
 							}
 						}
-					]
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/currency/currencies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"currency",
+								"currencies"
+							]
+						}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Latest Exchange Rates",
@@ -742,8 +742,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"exec": [],
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -757,7 +760,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"category\": \"Transport\",\n    \"amount\": 350,\n    \"description\": \"Flight tickets\"\n}"
+							"raw": "{\n    \"category\": \"Transportation\",\n    \"amount\": 350,\n    \"description\": \"Flight tickets\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:5000/api/trips/{{tripId}}/budgets",

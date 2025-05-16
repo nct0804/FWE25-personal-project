@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelBooking';
+const MONGO_URL = process.env.MONGO_URI || 'mongodb://mongo:27017/TravelPlanner';
 
 // Routes
 app.use('/api/trips', tripRoutes);
@@ -24,7 +24,7 @@ app.use('/api/currency', currencyRoutes);
 
 // Root route
 app.get('/', (req, res) => {
-  res.send('Welcome to the Travel Booking API hehe'); 
+  res.send('Welcome to the Travel Planner API hehe'); 
 });
 
 
