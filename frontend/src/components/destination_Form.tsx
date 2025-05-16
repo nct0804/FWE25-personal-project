@@ -12,7 +12,6 @@ import {
   Box,
   Grid,
   CircularProgress,
-  imageListClasses,
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -380,6 +379,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
                 {photosPreviews.map((photo, index) => (
                   <Box key={index} sx={{ position: 'relative' }}>
+                    {/* eslint-disable-next-line */}
                     <img 
                       src={photo} 
                       alt={`Photo ${index + 1}`}

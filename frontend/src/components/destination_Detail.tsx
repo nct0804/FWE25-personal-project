@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDestinationById, deleteDestination } from '../api/destinations';
 import { getTripsByDestination } from '../api/trips';
-import { Destination, Trip } from '../types';
 import {
   Button,
   Typography,
