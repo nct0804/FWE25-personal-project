@@ -1,5 +1,27 @@
 # FWESS251121462 - Backend
+Quick note: Since I couldn't run MongoDB locally, I always start the backend using Docker. Apologies if any dependencies are missing.
+## Separately run the backend without Docker
 
+
+Make sure you are in the right folder `/backend` before running the commands below:
+
+1. Run the following command the to install all dependencies (Docker is not used)
+```
+npm install
+
+```
+
+2. Run the following commands to start the application. This will start the app each time you run it
+```
+npm start
+
+```
+3. Once the backend has been started, the following confirmation messages should appear:
+```
+Connected to MongoDB
+Server running on http://localhost:5000
+
+```
 ## Technologies Used
 
 - Node.js
