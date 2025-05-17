@@ -1,7 +1,5 @@
 # FWESS251121462 - Backend
-Biete eine Möglichkeit, alle Reisen zu einem Reiseziel anzuzeigen
-Biete eine Route an, die alle Reisen zurückgibt, die ein bestimmtes Reiseziel
-enthalten.
+
 ## Separately run the backend without Docker
 
 Make sure you are in the right folder `/frontend` before running the commands below:
@@ -50,6 +48,11 @@ No issues found.
 
     -   Display all trips
 
+- Search for certain Trips by destination(s):
+    -   Display only the trips that are assigned to the destination(s).
+    -   Hide all trips that are not linked to the selected destination(s).
+    -   This feature will improve the user experience by allowing travelers to easily find trips that are linked to a specific destination(s), without having to scroll through unrelated ones. Combining with the existing search options, such as searching by trip name or date, it will make finding a specific trip much easier, especially when there are many data in the trip diary.
+
 #### Create, Read, Update, and Delete (CRUD) trips and destinations via the backend's REST API.
 - Trip: Allow uploading one image, which will be used as the thumbnail.
 
@@ -57,6 +60,22 @@ No issues found.
 
 - Ability to add or remove one or more destinations to/from a trip.
 
+- When creating a trip, these fields below are:
+    - Trip Name (required)
+    - Date (required)
+    - Description (optional)
+    - Participants (optional)
+    - Budget (optional)
+    - Add Destination (optional)
+    - Trip Image (optional)
+
+- When creating a destination, these fields below are:
+    - Destination Name (required)
+    - Date (required)
+    - Activitt (optional)
+    - Destination Photos (optional)
+
+-> ** Optional means not required to be filled, Required means is mandantory to fill these fields**
 #### Budget & Expense Visualization
 -   Travelers can add their expenses to the trip to see how much that they've spent on.
 -   Display total expenses for a trip.
