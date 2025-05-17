@@ -75,7 +75,7 @@ No issues found.
     - Activitt (optional)
     - Destination Photos (optional)
 
--> ** Optional means not required to be filled, Required means is mandantory to fill these fields**
+-> **Optional means not required to be filled, Required means is mandantory to fill these fields**
 #### Budget & Expense Visualization
 -   Travelers can add their expenses to the trip to see how much that they've spent on.
 -   Display total expenses for a trip.
