@@ -1,11 +1,13 @@
 // this is the homepage website
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Avatar } from '@mui/material';
+import { Avatar, Chip, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { Image as ImageIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-import { getAllTrips, searchTrips } from '../api/trips';
-import { Trip } from '../types';
+import { getAllTrips, searchTrips, getTripsByDestination } from '../api/trips';
+import { getAllDestinations } from '../api/destinations';
+import { Trip, Destination} from '../types';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   TextField,
   Button,
@@ -24,20 +26,38 @@ interface SearchFormData {
   name?: string;
   startDate?: string;
   endDate?: string;
+  destinationID?: string;
 }
 
 const TripList: React.FC = () => {
-  const { register, handleSubmit, formState: { isDirty } } = useForm<SearchFormData>();
-  
+  const { register, handleSubmit, setValue, watch, formState: { isDirty } } = useForm<SearchFormData>();
   const [searchFilters, setSearchFilters] = React.useState<SearchFormData>({});
   const [hasSearched, setHasSearched] = React.useState(false);
   const [showingAllTrips, setShowingAllTrips] = React.useState(false);
+  const [selectedDestinations, setSelectedDestinations] = React.useState<string[]>([]);
+  const [currentDestination, setCurrentDestination] = React.useState<string>("");
+
   const normalizeDate = (date: string | Date): string => {
     const d = new Date(date);
     // Set time to 00:00:00 to avoid timezone issues
     d.setHours(0, 0, 0, 0);
-    return d.toISOString().split('T')[0]; // Get just the YYYY-MM-DD part
+    return d.toISOString().split('T')[0];
   };
+  const {
+    data: destinations = [],
+    isLoading: isDestinationsLoading,
+  } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: async () => {
+      try {
+        return await getAllDestinations();
+      } catch (err) {
+        console.error("Error fetching destinations:", err);
+        return [];
+      }
+    }
+  });
+  
   const {
     data: trips,
     isLoading,
@@ -45,89 +65,152 @@ const TripList: React.FC = () => {
     error,
     refetch,
   } = useQuery<Trip[]>({
-    queryKey: ['trips', searchFilters, hasSearched, showingAllTrips],
-    // Update the queryFn section of your useQuery hook
-
+    queryKey: ['trips', searchFilters, hasSearched, showingAllTrips, selectedDestinations],
     queryFn: async () => {
-      if (showingAllTrips) {
+      let baseTrips: Trip[] = [];
+      if(selectedDestinations.length > 0) {
+          try{
+            console.log("Fetching trips containing selected destinations:", selectedDestinations);
+            const allTrips = await getAllTrips();
+            baseTrips = allTrips.filter(trip => {
+              if (!trip.destinations || !Array.isArray(trip.destinations)) {
+                return false;
+              }
+              const tripDestIds = trip.destinations.map(dest => 
+                typeof dest === 'string' ? dest : dest._id
+              );
+              const allDestinationsIncluded = selectedDestinations.every(selectedDestId => 
+                tripDestIds.includes(selectedDestId)
+              );
+              return allDestinationsIncluded;
+            });
+            
+            console.log("Filtered trips containing selected destinations:", baseTrips);
+          } catch (err) {
+            console.error("Error fetching trips by destination:", err);
+            throw err;
+          }
+      }else if (showingAllTrips) {
         try {
-          const allTrips = await getAllTrips();
-          return allTrips;
+          baseTrips = await getAllTrips();
         } catch (err) {
           console.error("Error fetching all trips:", err);
           throw err;
         }
-      }
-      if (!hasSearched) {
-        return [];
-      }
-    
-      const params: Record<string, string> = {};
-      
-      // Add name parameter if provided
-      if (searchFilters.name) params.name = searchFilters.name;
-      
-      // Format dates for backend API call using the normalizeDate helper
-      if (searchFilters.startDate) {
-        params.startDate = normalizeDate(searchFilters.startDate);
-      }
-      
-      if (searchFilters.endDate) {
-        params.endDate = normalizeDate(searchFilters.endDate);
-      }
-    
-      try {
-        if (Object.keys(params).length > 0) {
-          // Get initial results from backend
-          let results = await searchTrips(params);
-          
-          // Apply exact name matching if name is provided
+      }else if (hasSearched) {
+            // Create search parameters for API
+          const params: Record<string, string> = {};
           if (searchFilters.name) {
-            const exactName = searchFilters.name.trim().toLowerCase();
-            results = results.filter(trip => 
-              trip.name.toLowerCase() === exactName
-            );
+            params.name = searchFilters.name;
           }
-          
-          // Apply exact date matching with normalized dates
-          if (searchFilters.startDate || searchFilters.endDate) {
-            results = results.filter(trip => {
-              const tripStartDate = trip.startDate ? normalizeDate(trip.startDate) : null;
-              const tripEndDate = trip.endDate ? normalizeDate(trip.endDate) : null;
-              
-              const searchStartDateNorm = searchFilters.startDate ? normalizeDate(searchFilters.startDate) : null;
-              const searchEndDateNorm = searchFilters.endDate ? normalizeDate(searchFilters.endDate) : null;
-              
-              const startDateMatches = !searchStartDateNorm ? true : 
-                tripStartDate && tripStartDate.includes(searchStartDateNorm);
-                
-              const endDateMatches = !searchEndDateNorm ? true : 
-                tripEndDate && tripEndDate.includes(searchEndDateNorm);
-              
-              return startDateMatches && endDateMatches;
-            });
+          if (searchFilters.startDate) {
+            params.startDate = normalizeDate(searchFilters.startDate);
           }
-          
-          return results;
+          if (searchFilters.endDate) {
+            params.endDate = normalizeDate(searchFilters.endDate);
+          }
+          try {
+            if (Object.keys(params).length > 0) {
+              baseTrips = await searchTrips(params);
+            }
+          } catch (err) {
+            console.error("Error searching trips:", err);
+            throw err;
+          }
+      }else {return [];}
+
+      if (hasSearched && baseTrips.length > 0) {
+      console.log("Applying additional filters to trips:", searchFilters);
+
+         if (searchFilters.name) {
+          const searchName = searchFilters.name.trim().toLowerCase();
+          baseTrips = baseTrips.filter(trip => 
+            trip.name.toLowerCase().includes(searchName)
+          );
         }
-        return [];
-      } catch (err) {
-        console.error("Error fetching trips:", err);
-        throw err;
-      }
+  
+        if (searchFilters.startDate || searchFilters.endDate) {
+          baseTrips = baseTrips.filter(trip => {
+            const tripStartDate = trip.startDate ? normalizeDate(trip.startDate) : null;
+            const tripEndDate = trip.endDate ? normalizeDate(trip.endDate) : null;
+            
+            const searchStartDateNorm = searchFilters.startDate ? normalizeDate(searchFilters.startDate) : null;
+            const searchEndDateNorm = searchFilters.endDate ? normalizeDate(searchFilters.endDate) : null;
+            
+            const startDateMatches = !searchStartDateNorm ? true : 
+              tripStartDate && tripStartDate === searchStartDateNorm;
+              
+            const endDateMatches = !searchEndDateNorm ? true : 
+              tripEndDate && tripEndDate === searchEndDateNorm;
+            
+            return startDateMatches && endDateMatches;
+          });
+        }
+        }
+        return baseTrips;
     },
     retry: 2,
   });
+  
+
+
+
+
+  const handleDestinationChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    const destinationIds = typeof value === 'string' ? value.split(',') : value;
+
+    if(destinationIds)
+    {
+    setSelectedDestinations(destinationIds);
+    setShowingAllTrips(false);
+    setHasSearched(false);
+    setSearchFilters({});
+    }else {
+    setSelectedDestinations([]);
+    setShowingAllTrips(true);
+    setHasSearched(false);
+    setSearchFilters({});
+    }
+
+    // reset the form state
+    setValue('name', '');
+    setValue('startDate', '');
+    setValue('endDate', '');
+  }
+
+  const clearDestinationFilter = () => {
+  setSelectedDestinations([]);
+  setShowingAllTrips(true);
+  setHasSearched(false);
+  setSearchFilters({});
+  
+  // Reset form fields
+  setValue('name', '');
+  setValue('startDate', '');
+  setValue('endDate', '');
+  };
+
+  const clearSearchFilters = () => {
+    setSearchFilters({});
+    setHasSearched(false);
+    
+    // Reset form fields
+    setValue('name', '');
+    setValue('startDate', '');
+    setValue('endDate', '');
+  };
 
   const handleShowAllTrips = () => {
     setShowingAllTrips(true);
     setHasSearched(false);
     setSearchFilters({});
   }
+  
 
   const onSubmit = (data: SearchFormData) => {
     console.log("Search form submitted with data:", data);
-    setShowingAllTrips(false);
+    
     // Check if at least one search field is populated
     const hasSearchTerm = !!data.name || !!data.startDate || !!data.endDate;
     if (!hasSearchTerm) {
@@ -139,7 +222,7 @@ const TripList: React.FC = () => {
     if (data.startDate || data.endDate) {
       // If one date is provided, recommend providing both for better results
       if (data.startDate && !data.endDate) {
-        if (!window.confirm("You only entered a Start Date. This will pirnt out trips with the exact start date. Continue?")) {
+        if (!window.confirm("You only entered a Start Date. This will print out trips with the exact start date. Continue?")) {
           return;
         }
       } else if (!data.startDate && data.endDate) {
@@ -158,11 +241,13 @@ const TripList: React.FC = () => {
       }
     }
     
+    // Set these regardless of whether destination is selected
     setSearchFilters(data);
     setHasSearched(true);
+    setShowingAllTrips(false); // Turn off "show all" when searching
   };
 
-  if (isLoading) {
+  if (isDestinationsLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <CircularProgress />
@@ -206,6 +291,99 @@ const TripList: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Manage your itinerary
       </Typography>
+
+      <Box sx={{mb: 3, display: 'flex', flexDirection: 'column', gap: 2}}>
+        <Typography variant="subtitle1">
+          Filter trips by destination:
+        </Typography>
+
+        {isDestinationsLoading ? (
+          <CircularProgress size={24} sx={{alignSelf: 'flex-start'}} />
+        ) : destinations && destinations.length > 0 ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControl sx={{ width: 300 }}>
+              <InputLabel id="destination-select-label">Select Destination</InputLabel>
+              <Select
+                labelId="destination-select-label"
+                value={currentDestination}
+                onChange={(e) => setCurrentDestination(e.target.value as string)}
+                label="Select Destination"
+              >
+                  {destinations.map((destination) => (
+                    <MenuItem key={destination._id} value={destination._id}>
+                      {destination.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+            <Button 
+              variant="contained" 
+              color="primary"
+              disabled={!currentDestination || selectedDestinations.includes(currentDestination)}
+              onClick={() => {
+                if (currentDestination && !selectedDestinations.includes(currentDestination)) {
+                  setSelectedDestinations([...selectedDestinations, currentDestination]);
+                  setShowingAllTrips(false);
+                  setHasSearched(false);
+                  setSearchFilters({});
+                }
+              }}
+            >
+              Add Destination
+            </Button>     
+          
+            {selectedDestinations && (
+              <Button 
+                variant="outlined" 
+                onClick={clearDestinationFilter}
+                size="small"
+              >
+                Clear Filter
+              </Button>
+            )}
+          </Box>
+        ) : (
+          <Typography variant="body2" color ="text.secondary">
+            No destinations available. Please add a destination first.
+          </Typography>
+        )}
+
+      </Box>
+        {selectedDestinations.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+            {selectedDestinations.map(destId => {
+              const dest = destinations.find(d => d._id === destId);
+              return (
+                <Chip 
+                  key={destId} 
+                  label={dest?.name || ''} 
+                  onDelete={() => {
+                    // Remove this specific destination from the selected list
+                    setSelectedDestinations(prev => prev.filter(id => id !== destId));
+                    
+                    // If removing the last destination, show all trips
+                    if (selectedDestinations.length === 1) {
+                      setShowingAllTrips(true);
+                    }
+                  }}
+                  color="primary"
+                />
+              );
+            })}
+          </Box>
+        )}
+
+      <Box sx={{ height: '1px', bgcolor: 'divider', my: 2 }}></Box>
+      
+      {selectedDestinations && (
+        <Typography variant="subtitle1" sx={{ mb: 2 }}>
+          Showing trips for destinations: {
+            selectedDestinations.map(id => 
+              destinations.find(d => d._id === id)?.name
+            ).filter(Boolean).join(', ')
+          }
+        </Typography>
+      )}
       
       <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', gap: 2, marginBottom: 3 }}>
         <TextField
@@ -236,12 +414,22 @@ const TripList: React.FC = () => {
         >
           {isLoading ? 'Searching...' : 'Search'}
         </Button>
+
         <Button 
           variant="contained" 
           color="primary"
           onClick={handleShowAllTrips}
-          disabled={isLoading || showingAllTrips}
+          disabled={isLoading || showingAllTrips || selectedDestinations.length > 0}
         >Show Trips</Button>
+
+        {hasSearched && (
+          <Button 
+            variant="outlined"
+            onClick={clearSearchFilters}
+          >
+            Clear Search
+          </Button>
+        )}
       </Box>
     
 
@@ -255,7 +443,7 @@ const TripList: React.FC = () => {
         Create New Trip
       </Button>
 
-      {trips && trips.length > 0 ? (
+      {(Array.isArray(trips) && trips.length > 0) ? (
         <>
           {showingAllTrips && (
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
@@ -300,13 +488,17 @@ const TripList: React.FC = () => {
             ))}
           </List>
         </>
-      ) : !hasSearched && !showingAllTrips ? (
+      ) : !hasSearched && !showingAllTrips && selectedDestinations.length === 0 ? (
         <Typography variant="body1" sx={{ padding: 2 }}>
           Please search for trips above or click "Show Trips".
         </Typography>
       ) : (
         <Typography variant="body1" sx={{ padding: 2 }}>
-          No trips {showingAllTrips ? "available" : "match your search criteria"}.
+          {selectedDestinations.length > 0 
+            ? `No trips found that include all ${selectedDestinations.length} selected destinations.` 
+            : hasSearched 
+              ? "No trips match your search criteria." 
+              : "No trips available."}
         </Typography>
       )}
     </Paper>

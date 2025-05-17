@@ -292,6 +292,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 name="startDate"
+                rules={{ required: 'Start date is required' }}
                 control={control}
                 render={({ field }) => (
                   <DatePicker
@@ -309,6 +310,7 @@ const DestinationForm: React.FC<DestinationFormProps> = ({ isEdit = false }) => 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
                 name="endDate"
+                rules={{ required: 'end date is required' }}
                 control={control}
                 render={({ field }) => (
                   <DatePicker

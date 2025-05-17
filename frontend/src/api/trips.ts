@@ -82,7 +82,13 @@ export const removeDestinationFromTrip = async (tripId: string, destinationId: s
 }
 
 export const getTripsByDestination = async (destinationId: string): Promise<Trip[]> => {
-  const res = await fetch(`/api/trips?destinationId=${destinationId}`);
-  const data = await res.json();
-  return data.trips;
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trips/destination/${destinationId}/trips`);
+    console.log('Trips by destination response:', response.data);
+    // Extract the trips array from the response
+    return response.data.trips || [];
+  } catch (error) {
+    console.error('Error fetching trips by destination:', error);
+    throw error;
+  }
 };

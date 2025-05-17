@@ -308,6 +308,7 @@ const onSubmit = (data: TripFormData) => {
             <Controller
               name="name"
               control={control}
+              rules={{ required: 'Trip name is required' }}
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -341,6 +342,7 @@ const onSubmit = (data: TripFormData) => {
               <Controller
                 name="startDate"
                 control={control}
+                rules={{ required: 'start date is required' }}
                 render={({ field }) => (
                   <DatePicker
                     label="Start Date"
@@ -365,6 +367,7 @@ const onSubmit = (data: TripFormData) => {
               <Controller
                 name="endDate"
                 control={control}
+                rules={{ required: 'end date is required' }}
                 render={({ field }) => (
                   <DatePicker
                     label="End Date"
