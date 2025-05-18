@@ -33,6 +33,11 @@ No issues found.
 
 
 ```
+# Technologies Used
+-   Material UI (MUI)
+-   TypeScript with React
+-   TanStack
+-   Docker
 
 # Features
 ## Search Functionality
